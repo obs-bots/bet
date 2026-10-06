@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Опросы и ставки для OBS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0;min-height:100%}
+body{--rgb:83,252,24;--accent:#53fc18;--ink:#0a0c08;--mono:'IBM Plex Mono',ui-monospace,Consolas,monospace;background:#08090d;color:#e6e7ef;font-family:'Space Grotesk',system-ui,sans-serif;-webkit-font-smoothing:antialiased;color-scheme:dark}
+body[data-p=twitch]{--rgb:145,70,255;--accent:#9146ff;--ink:#fff}
+body.ov{background:transparent}
+button,input,select{font:inherit;color:inherit}
+button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* ---------- фон и заставка ---------- */
+body:not(.ov)::before{content:'';position:fixed;inset:0;pointer-events:none;background:radial-gradient(ellipse 62% 66% at 0 0,rgba(var(--rgb),.28),rgba(var(--rgb),.09) 45%,transparent 75%),radial-gradient(ellipse 58% 62% at 100% 100%,rgba(120,140,255,.24),transparent 72%)}
+.spfx{position:fixed;inset:0;pointer-events:none;overflow:hidden}
+.fb{position:absolute;bottom:0;left:var(--x);animation:fbUp var(--t) linear var(--dl,0s) forwards}
+@keyframes fbUp{0%{transform:translateY(50px);opacity:0}8%{opacity:.9}78%{opacity:.9}100%{transform:translateY(calc(-100vh - 140px));opacity:0}}
+.fb-in{display:flex;align-items:center;gap:9px;width:var(--w);padding:9px 12px;border-radius:14px;background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.075);animation:sway var(--sw) ease-in-out infinite alternate}
+@keyframes sway{from{transform:translateX(-10px)}to{transform:translateX(10px)}}
+.fb-in b{flex:none;width:14px;height:14px;border-radius:5px;background:var(--c,rgb(var(--rgb)));box-shadow:0 0 12px var(--c,rgba(var(--rgb),.5))}
+.fb-in span{flex:1;display:flex;flex-direction:column;gap:5px}
+.fb-in i{display:block;height:5px;border-radius:3px;background:rgba(255,255,255,.2)}
+.fb-in i:first-child{width:35%;background:var(--c,rgb(var(--rgb)));opacity:.8}
+
+#app{position:relative;z-index:1;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:18px}
+.card{background:#11141c;border:1px solid rgba(255,255,255,.09);border-radius:26px;box-shadow:0 30px 80px rgba(0,0,0,.45)}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes cardin{from{opacity:0;transform:translateY(26px) scale(.95);filter:blur(8px)}to{opacity:1;transform:none;filter:none}}
+
+/* ---------- экран 1 ---------- */
+#s1{width:100%;max-width:440px;text-align:center;padding:38px 34px 32px;animation:cardin .8s cubic-bezier(.2,.9,.2,1) backwards}
+#s1>*{animation:rise .5s backwards}
+.tabs{display:flex;gap:10px;justify-content:center;margin-bottom:22px}
+.tab{font:500 11px var(--mono);letter-spacing:.08em;background:transparent;color:#cfd2de;border:1px solid rgba(var(--r),.4);border-radius:999px;padding:7px 14px;cursor:pointer;opacity:.45;transition:.18s}
+.tab[data-p=kick]{--r:83,252,24}.tab[data-p=twitch]{--r:145,70,255}
+.tab:hover{opacity:.8}
+.tab.on{opacity:1;background:rgba(var(--r),.16);box-shadow:0 0 0 1px rgba(var(--r),.4),0 0 16px rgba(var(--r),.2)}
+h1{font-weight:700;font-size:clamp(26px,4vw,32px);margin:0 0 10px;letter-spacing:-.02em;background:linear-gradient(180deg,#fff,#b9c3d6);-webkit-background-clip:text;background-clip:text;color:transparent}
+.sub{font-size:14px;color:#8b93a3;margin:0 0 24px;line-height:1.5}
+.sub b{color:#c9ccd8;font-weight:500}
+.inrow{display:flex;gap:9px;margin-bottom:16px}
+.pre{display:flex;align-items:center;padding:0 14px;font:13px var(--mono);color:#8b93a3;background:#0d1017;border:1px solid rgba(255,255,255,.09);border-radius:12px;white-space:nowrap}
+.inrow input{flex:1;min-width:0;padding:13px 14px;font:14px var(--mono);background:#0d1017;border:1px solid rgba(255,255,255,.09);border-radius:12px;outline:none;transition:.2s}
+.inrow input:focus{border-color:rgba(var(--rgb),.55);box-shadow:0 0 0 3px rgba(var(--rgb),.12)}
+.inrow input.bad{border-color:rgba(255,107,107,.6);box-shadow:0 0 0 3px rgba(255,107,107,.12)}
+.cta{position:relative;overflow:hidden;width:100%;padding:14px 18px;border:0;border-radius:12px;background:var(--accent);color:var(--ink);font-weight:700;font-size:15px;cursor:pointer;box-shadow:0 8px 24px rgba(var(--rgb),.22);transition:.15s}
+.cta:hover{transform:translateY(-1px);box-shadow:0 10px 28px rgba(var(--rgb),.34)}
+.cta::after{content:'';position:absolute;top:0;bottom:0;left:-40%;width:30%;transform:skewX(-20deg);background:linear-gradient(90deg,transparent,rgba(255,255,255,.4),transparent);transition:left .6s}
+.cta:hover::after{left:120%}
+.note{margin:18px 0 0;font:11.5px var(--mono);color:#5b6272;line-height:1.7}
+.note code{color:#8b93a3}
+.cmds{display:grid;gap:8px;margin:0 0 22px;text-align:left}
+.cmds div{display:flex;gap:10px;align-items:center;padding:9px 12px;border-radius:12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);font-size:13px;color:#aab0c3}
+.cmds code{font:12px var(--mono);color:var(--accent);white-space:nowrap}
+
+/* ---------- экран 2 ---------- */
+#s2{width:100%;max-width:1180px;animation:cardin .7s cubic-bezier(.2,.9,.2,1) backwards}
+.top{display:flex;align-items:center;gap:14px;margin:0 0 12px}
+.back{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:#c9ccd8;border-radius:12px;padding:9px 14px;font-size:14px;cursor:pointer}
+.top h2{margin:0;font-size:20px;font-weight:600}
+.top h2 span{color:var(--accent)}
+.grid{display:grid;gap:14px}
+.pvbar{display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap}
+.st{font:12px var(--mono);padding:6px 12px;border-radius:14px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.08);color:#b4b9cc}
+.st.ok{color:var(--accent)}.st.err{color:#ff7a7a}
+.sp{flex:1}
+.chip{font:12px var(--mono);background:rgba(255,255,255,.06);color:#b4b9cc;border:1px solid rgba(255,255,255,.12);border-radius:999px;padding:6px 11px;cursor:pointer;transition:.15s}
+.chip:hover{border-color:rgba(var(--rgb),.6)}
+.chip.on{color:#fff;border-color:var(--accent)}
+.chip.go{background:rgba(var(--rgb),.14);border-color:rgba(var(--rgb),.5);color:#fff}
+.pvbox{position:relative;height:min(560px,70vh);border-radius:22px;border:1px solid #222735;overflow:hidden;background:conic-gradient(#2b2e3a 25%,#20232d 0 50%,#2b2e3a 0 75%,#20232d 0) 0 0/24px 24px}
+.pvbox[data-bg=dark]{background:#000}.pvbox[data-bg=light]{background:#c9d1dc}
+.panel{padding:6px 18px 16px}
+.grp{font:500 11px var(--mono);color:var(--accent);margin:14px 0 2px;letter-spacing:.04em}
+.row{display:flex;flex-direction:column;gap:6px;padding:10px 0;border-top:1px solid #1b1f2d;font-size:14px}
+.row.inl{flex-direction:row;justify-content:space-between;align-items:center}
+.lab{display:flex;justify-content:space-between;color:#cfd2de}
+.val{font:12px var(--mono);color:#8f95a9}
+.row input[type=range]{width:100%;accent-color:var(--accent)}
+.row input[type=checkbox]{width:18px;height:18px;accent-color:var(--accent)}
+.row input[type=color]{width:44px;height:28px;border:1px solid #262b38;border-radius:8px;background:#0c0e15;padding:2px}
+.row select,.row input[type=text]{background:#0c0e15;border:1px solid #262b38;color:#e6e7ef;border-radius:10px;padding:8px 10px;font-size:14px;width:100%}
+.hint{font-size:12px;color:#7a8095;line-height:1.5;margin:0}
+.hint code{font-family:var(--mono);color:#aab0c3}
+#getlink{margin-top:14px}
+.out{margin-top:14px;padding:18px;border-color:rgba(var(--rgb),.5);box-shadow:0 0 0 4px rgba(var(--rgb),.1)}
+.out h3{margin:0 0 12px;font-size:18px}
+.urlrow{display:flex;gap:8px}
+.urlrow input{flex:1;min-width:0;height:46px;border-radius:12px;border:1px solid #262b38;background:#090b11;padding:0 12px;font:12.5px var(--mono)}
+.btn2{height:46px;border-radius:12px;border:0;background:var(--accent);color:var(--ink);font-weight:700;padding:0 16px;cursor:pointer}
+.steps{margin:14px 0 0;padding-left:20px;color:#aab0c3;line-height:1.65;font-size:14px}
+.steps code{font-family:var(--mono);color:#e6e7ef}
+@media(min-width:860px){.grid{grid-template-columns:1fr 440px}.pvwrap{grid-column:2;grid-row:1;position:sticky;top:14px;align-self:start}.panel{grid-column:1;grid-row:1}}
+
+/* ============ ВИДЖЕТ ============ */
+.wh{position:absolute;inset:0;padding:22px;display:flex;pointer-events:none;overflow:hidden;--ac:var(--accent);--ar:var(--rgb)}
+.wh.fx{position:fixed;z-index:9}
+.wh.bl{align-items:flex-end;justify-content:flex-start}.wh.br{align-items:flex-end;justify-content:flex-end}
+.wh.tl{align-items:flex-start;justify-content:flex-start}.wh.tr{align-items:flex-start;justify-content:flex-end}
+.wh.cc{align-items:center;justify-content:center}
+.wh.bl .w{transform-origin:left bottom}.wh.br .w{transform-origin:right bottom}.wh.tl .w{transform-origin:left top}.wh.tr .w{transform-origin:right top}.wh.cc .w{transform-origin:center}
+.w{--s:1;transform:scale(var(--s));font-family:'Space Grotesk',system-ui,sans-serif;color:#e8ebf3;opacity:0;transition:opacity .3s}
+.w.show{opacity:1}
+.shell{width:152px;background:#11141c;border:1px solid rgba(255,255,255,.1);border-radius:24px;overflow:hidden;transform:scale(.4);transition:width .65s cubic-bezier(.2,.9,.2,1),transform .55s cubic-bezier(.3,1.5,.4,1),box-shadow .6s,border-radius .6s;box-shadow:0 14px 40px rgba(0,0,0,.5)}
+.w.show .shell{transform:none;box-shadow:0 14px 40px rgba(0,0,0,.5),0 0 0 1px rgba(var(--ar),.4),0 0 30px rgba(var(--ar),.25)}
+.w.open .shell{width:360px;border-radius:22px;box-shadow:0 18px 50px rgba(0,0,0,.55),0 0 0 1px rgba(var(--ar),.35),0 0 46px rgba(var(--ar),.18)}
+.hd{display:flex;align-items:center;gap:9px;padding:11px 16px;white-space:nowrap}
+.hd b{font-weight:600;font-size:14px;letter-spacing:.01em}
+.hd em{margin-left:auto;font:500 12px var(--mono);font-style:normal;color:#9aa1b3}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--ac);box-shadow:0 0 0 0 rgba(var(--ar),.7);animation:pulse 1.4s infinite}
+@keyframes pulse{70%{box-shadow:0 0 0 9px rgba(var(--ar),0)}100%{box-shadow:0 0 0 0 rgba(var(--ar),0)}}
+.w.done .dot{animation:none;background:#fff}
+.bd{display:grid;grid-template-rows:0fr;transition:grid-template-rows .75s cubic-bezier(.2,.9,.2,1) .12s}
+.w.open .bd{grid-template-rows:1fr}
+.in{min-height:0;overflow:hidden;padding:0 14px}
+.w.open .in{padding-bottom:0}
+.q{margin:2px 2px 12px;font-weight:600;font-size:18px;line-height:1.25;overflow-wrap:anywhere;opacity:0;transform:translateY(6px);transition:.5s .35s}
+.w.open .q{opacity:1;transform:none}
+.os{display:grid;gap:7px}
+.o{position:relative;display:flex;align-items:center;gap:10px;height:46px;padding:0 12px;border-radius:13px;background:rgba(255,255,255,.05);overflow:hidden;opacity:0;transform:translateY(10px);transition:opacity .5s,transform .5s cubic-bezier(.2,.9,.3,1.2),box-shadow .4s,background .4s;transition-delay:0s}
+.w.open .o{opacity:1;transform:none;transition-delay:calc(.3s + var(--i)*.08s),calc(.3s + var(--i)*.08s),0s,0s}
+.fl{position:absolute;inset:0;transform-origin:left;transform:scaleX(var(--p,0));background:linear-gradient(90deg,rgba(var(--ar),.5),rgba(var(--ar),.22));border-right:2px solid rgba(var(--ar),.9);transition:transform .35s linear}
+.o>*:not(.fl){position:relative}
+.ix{flex:none;width:22px;height:22px;border-radius:7px;display:grid;place-items:center;font:500 12px var(--mono);background:rgba(0,0,0,.35);color:#cfd2de}
+.tx{flex:1;min-width:0;font-weight:500;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pc{font-weight:700;font-size:20px;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.o.lead{box-shadow:inset 0 0 0 1px rgba(var(--ar),.55)}
+.o.lead .ix{background:var(--ac);color:var(--ink)}
+.w.done .o:not(.lead):not(.win){opacity:.45}
+.o.win{box-shadow:inset 0 0 0 2px var(--ac),0 0 24px rgba(var(--ar),.4)}
+.o.win .ix{background:var(--ac);color:var(--ink)}
+.ft{display:flex;justify-content:space-between;gap:10px;padding:11px 3px 12px;font:12px var(--mono);color:#8f95a9;opacity:0;transition:opacity .5s .7s}
+.w.open .ft{opacity:1}
+.ft b{color:#d6d9e4;font-weight:500}
+.tb{height:3px;margin:0 -14px;background:rgba(255,255,255,.06)}
+.tb i{display:block;height:100%;background:var(--ac);transform-origin:left;transform:scaleX(var(--t,1));box-shadow:0 0 10px var(--ac)}
+.w.done .tb{opacity:0}
+@media(prefers-reduced-motion:reduce){.shell,.bd,.o,.q,.fl{transition-duration:.01s!important;transition-delay:0s!important}.dot,.fb,.fb-in,#s1,#s1>*,#s2{animation:none!important}}
+.w.lock .dot{animation:none;background:#ffb020;box-shadow:0 0 10px #ffb020}
+.w.lock .tb i{background:#ffb020}
+</style>
+</head>
+<body>
+<div class="spfx" id="fx" aria-hidden="true"></div>
+
+<div id="app">
+  <section id="s1" class="card">
+    <div class="tabs" style="animation-delay:.15s">
+      <button class="tab" data-p="kick" type="button">KICK</button>
+      <button class="tab" data-p="twitch" type="button">TWITCH</button>
+    </div>
+    <h1 style="animation-delay:.3s">Опросы и ставки для OBS</h1>
+    <p class="sub" id="sub" style="animation-delay:.4s"></p>
+    <div class="cmds" style="animation-delay:.5s">
+      <div><code>Опрос</code>виджет покажет его и проценты голосов</div>
+      <div><code>Ставка</code>виджет покажет прогноз и банк очков</div>
+    </div>
+    <div class="inrow" style="animation-delay:.6s"><span class="pre" id="pre"></span><input id="ch" aria-label="Ник канала" placeholder="nickname" autocomplete="off" autocapitalize="none" spellcheck="false"></div>
+    <button class="cta" id="go" type="button" style="animation-delay:.7s">Подключиться</button>
+    <p class="note" style="animation-delay:.8s">Можно вставить ссылку на канал целиком.<br>Виджет появляется сам, когда на канале начинается опрос или ставка.</p>
+  </section>
+
+  <section id="s2" hidden>
+    <div class="top">
+      <button class="back" id="back" type="button">Сменить канал</button>
+      <h2 id="ttl"></h2>
+    </div>
+    <div class="grid">
+      <div class="pvwrap">
+        <div class="pvbar">
+          <span id="st" class="st">не подключено</span><span class="sp"></span>
+          <button class="chip on" data-bg="checker" type="button">клетка</button>
+          <button class="chip" data-bg="dark" type="button">тёмный</button>
+          <button class="chip" data-bg="light" type="button">светлый</button>
+        </div>
+        <div class="pvbox" id="pvbox" data-bg="checker"><div class="wh bl" id="wh"></div></div>
+        <div class="pvbar" style="margin:10px 0 0">
+          <button class="chip go" id="dPoll" type="button">Показать опрос</button>
+          <button class="chip go" id="dBet" type="button">Показать ставку</button>
+          <button class="chip" id="dEnd" type="button">Завершить</button>
+        </div>
+      </div>
+      <div class="card panel">
+        <div id="authgrp">
+          <div class="grp">TWITCH</div>
+          <p class="hint" style="margin:8px 0">Входить не нужно: опросы и ставки читаются из публичных событий канала, так же как их показывает сам сайт Twitch.</p>
+          <details class="row"><summary class="hint" style="cursor:pointer">ID канала вручную</summary><input type="text" id="tid" placeholder="например 123456789" style="margin-top:8px"><p class="hint" style="margin-top:6px">Нужен, если ID не определился сам.</p></details>
+        </div>
+        <div class="grp">ВИДЖЕТ</div>
+        <div class="row"><div class="lab">Положение на экране</div>
+          <select id="pos"><option value="bl">Слева снизу</option><option value="br">Справа снизу</option><option value="tl">Слева сверху</option><option value="tr">Справа сверху</option><option value="cc">По центру</option></select></div>
+        <div class="row"><div class="lab">Размер <span class="val" id="vsc"></span></div><input type="range" id="sc" min="60" max="180" step="5"></div>
+        <div class="row inl"><span>Цвет платформы</span><input type="checkbox" id="auto"></div>
+        <div class="row inl" id="accrow"><span>Свой цвет</span><input type="color" id="acc"></div>
+        <div id="kickgrp">
+          <div class="grp">KICK</div>
+          <p class="hint" style="margin:8px 0">Входить никуда не нужно: опросы Kick читаются из открытого чата канала.</p>
+          <details class="row"><summary class="hint" style="cursor:pointer">ID чата вручную</summary><input type="text" id="cid" placeholder="например 12345678" style="margin-top:8px"><p class="hint" style="margin-top:6px">Нужен, если Kick не отдаёт ID автоматически.</p></details>
+        </div>
+      </div>
+    </div>
+    <button class="cta" id="getlink" type="button">Получить ссылку для OBS</button>
+    <div class="card out" id="outcard" hidden>
+      <h3>Ссылка для OBS</h3>
+      <div class="urlrow"><input id="outurl" readonly><button class="btn2" id="copy" type="button">Копировать</button></div>
+      <ol class="steps">
+        <li>В OBS: <code>Источники</code> → <code>+</code> → <code>Браузер</code>.</li>
+        <li>Вставьте ссылку в <code>URL</code>, размер <code>1920×1080</code> — виджет сам встанет в выбранный угол.</li>
+        <li>Фон прозрачный. Изменили настройки — скопируйте ссылку заново.</li>
+      </ol>
+    </div>
+  </section>
+</div>
+
+<script>
+(()=>{
+'use strict';
+const $=s=>document.querySelector(s), $$=s=>document.querySelectorAll(s);
+const D={p:'kick',c:'',pos:'bl',sc:100,acc:'',cid:'',tid:''};
+let S={...D};
+const Q=new URLSearchParams(location.search), OV=Q.get('o')==='1';
+try{ if(!OV) Object.assign(S,JSON.parse(localStorage.getItem('pbw')||'{}')); }catch(e){}
+for(const k in D) if(Q.has(k)) S[k]=typeof D[k]==='number'?+Q.get(k):Q.get(k);
+const save=()=>{try{localStorage.setItem('pbw',JSON.stringify(S))}catch(e){}};
+const hex2rgb=h=>[1,3,5].map(i=>parseInt(h.slice(i,i+2),16)).join(',');
+const nf=n=>Math.round(n).toLocaleString('ru-RU');
+const maxIdx=a=>a.reduce((b,v,i)=>v>a[b]?i:b,0);
+
+/* ---------- виджет ---------- */
+class Widget{
+  constructor(h){this.h=h;this.w=null}
+  show(id,kind,title,labels,end,onEnd){
+    if(this.w&&this.id===id&&!this.done){ if(end) this.end=end; return; }
+    this.kill(); Object.assign(this,{id,kind,end,onEnd,done:false,locked:false,users:null});
+    this.dur=Math.max(1000,(end||0)-Date.now());
+    this.o=labels.map(t=>({t,v:0,d:0}));
+    const w=document.createElement('div'); w.className='w';
+    w.innerHTML='<div class="shell"><div class="hd"><i class="dot"></i><b></b><em></em></div><div class="bd"><div class="in"><p class="q"></p><div class="os"></div><div class="ft"><span class="a"></span><span class="b"></span></div><div class="tb"><i></i></div></div></div></div>';
+    w.querySelector('b').textContent=kind==='bet'?'Ставка':'Опрос';
+    w.querySelector('.q').textContent=title;
+    const os=w.querySelector('.os');
+    this.o.forEach((o,i)=>{const r=document.createElement('div');r.className='o';r.style.setProperty('--i',i);
+      r.innerHTML='<div class="fl"></div><span class="ix"></span><span class="tx"></span><span class="pc">0%</span>';
+      r.querySelector('.ix').textContent=i+1; r.querySelector('.tx').textContent=o.t; o.el=r; o.pc=r.querySelector('.pc'); o.fl=r.querySelector('.fl'); os.appendChild(r);});
+    this.h.appendChild(w); this.w=w; this.apply();
+    requestAnimationFrame(()=>requestAnimationFrame(()=>w.classList.add('show')));
+    this.t1=setTimeout(()=>w.classList.add('open'),480);
+    this.ti=setInterval(()=>this.tick(),200); this.tick(); this.set([]); this.loop();
+  }
+  apply(){ if(this.w) this.w.style.setProperty('--s',S.sc/100); }
+  tot(){return this.o.reduce((a,o)=>a+o.v,0)}
+  set(vals,users){
+    if(!this.w) return; vals.forEach((v,i)=>this.o[i]&&(this.o[i].v=v)); if(users!=null) this.users=users;
+    this.w.querySelector('.a').innerHTML=(this.kind==='bet'?'Банк: ':'Голосов: ')+'<b>'+nf(this.tot())+'</b>';
+    if(!this.done&&!this.locked) this.w.querySelector('.b').textContent=this.users!=null?'Участников: '+nf(this.users):'';
+  }
+  tick(){
+    if(!this.w||this.done) return;
+    const em=this.w.querySelector('em'), bar=this.w.querySelector('.tb i');
+    if(this.locked){ em.textContent='закрыто'; bar.style.setProperty('--t',0); return; }
+    if(!this.end){ em.textContent=''; return; }
+    const rem=Math.max(0,this.end-Date.now()), s=Math.ceil(rem/1000);
+    em.textContent=Math.floor(s/60)+':'+String(s%60).padStart(2,'0');
+    bar.style.setProperty('--t',Math.min(1,rem/this.dur));
+    if(!rem&&this.onEnd){const f=this.onEnd;this.onEnd=null;f();}
+  }
+  lock(){ if(!this.w||this.done) return; this.locked=true; this.w.classList.add('lock'); this.w.querySelector('.b').textContent='Приём ставок закрыт'; this.tick(); }
+  loop(){
+    const tot=this.tot(), mx=Math.max(0,...this.o.map(o=>o.v));
+    this.o.forEach(o=>{
+      const tg=tot?o.v/tot*100:0; o.d+=(tg-o.d)*.12; if(Math.abs(tg-o.d)<.05) o.d=tg;
+      o.pc.textContent=Math.round(o.d)+'%'; o.fl.style.setProperty('--p',o.d/100);
+      o.el.classList.toggle('lead',tot>0&&o.v===mx);
+    });
+    this.raf=requestAnimationFrame(()=>this.loop());
+  }
+  finish(win,msg){
+    if(!this.w||this.done) return; this.done=true; clearInterval(this.ti);
+    const w=this.w; w.classList.remove('lock'); w.classList.add('done'); w.querySelector('b').textContent='Итоги'; w.querySelector('em').textContent='';
+    const tot=this.tot(), b=w.querySelector('.b');
+    if(!msg&&win!=null&&win>=0&&this.o[win]&&tot){
+      const o=this.o[win]; o.el.classList.add('win');
+      b.innerHTML='Победил: <b></b>'; b.querySelector('b').textContent=o.t+(this.kind==='bet'&&o.v?' · ×'+(tot/o.v).toFixed(2):'');
+    } else b.textContent=msg||(tot?'Завершено':'Никто не голосовал');
+    this.tc=setTimeout(()=>this.close(),12000);
+  }
+  close(){
+    const w=this.w; if(!w) return; clearTimeout(this.tc); w.classList.remove('open');
+    setTimeout(()=>w.classList.remove('show'),900); setTimeout(()=>{if(this.w===w) this.kill()},1500);
+  }
+  kill(){ clearTimeout(this.t1);clearTimeout(this.tc);clearInterval(this.ti);cancelAnimationFrame(this.raf); if(this.w) this.w.remove(); this.w=null; }
+}
+const wh=$('#wh'), W=new Widget(wh);
+function style(){
+  wh.className='wh '+S.pos+(OV?' fx':'');
+  const c=S.acc||(S.p==='twitch'?'#9146ff':'#53fc18');
+  wh.style.setProperty('--ac',c); wh.style.setProperty('--ar',hex2rgb(c)); W.apply();
+}
+
+/* ---------- общие сокеты ---------- */
+let socks=[], gen=0;
+const add=ws=>(socks.push(ws),ws);
+function status(t,c){const e=$('#st'); if(!e) return; e.textContent=t; e.className='st '+(c||'');}
+function disconnect(){gen++; socks.forEach(s=>{try{s.close()}catch(e){}}); socks=[];}
+function connect(){ disconnect(); const my=gen; status('подключение…'); (S.p==='twitch'?connectTw:connectKick)(my); }
+function retryLater(my){ if(my===gen){status('переподключение…','err'); setTimeout(()=>my===gen&&connect(),4000);} }
+
+/* ---------- Twitch: публичные события канала, вход не нужен ---------- */
+const WEB_ID='kimne78kx3ncx6brgo4mv6wki5h1ko';
+const num=v=>v&&typeof v==='object'?+(v.total??0)||0:+v||0;
+async function twId(login){
+  if(S.tid) return S.tid;
+  try{
+    const r=await fetch('https://gql.twitch.tv/gql',{method:'POST',headers:{'Client-Id':WEB_ID},body:JSON.stringify({query:'query{user(login:"'+login.replace(/[^\w]/g,'')+'"){id}}'})});
+    const j=await r.json(), id=j.data&&j.data.user&&j.data.user.id; if(id) return id;
+  }catch(e){}
+  try{ const t=(await (await fetch('https://decapi.me/twitch/id/'+encodeURIComponent(login))).text()).trim(); if(/^\d+$/.test(t)) return t; }catch(e){}
+  return '';
+}
+function twMsg(m){
+  const d=m.data||{};
+  if(d.poll){
+    const p=d.poll, ch=p.choices||[]; if(!ch.length) return;
+    const labels=ch.map(c=>c.title), vals=ch.map(c=>num(c.votes??c.total_voters)), st=String(p.status||'').toUpperCase();
+    const id='tp:'+(p.poll_id||p.id||p.title), end=(Date.parse(p.started_at)||Date.now())+(p.duration_seconds||0)*1000;
+    if(st==='ARCHIVED') return;
+    if(st==='MODERATED') return W.close();
+    if(st==='COMPLETED'||st==='TERMINATED'){ W.show(id,'poll',p.title,labels,0); W.set(vals); W.finish(maxIdx(vals)); }
+    else{ W.show(id,'poll',p.title,labels,end); W.set(vals); }
+  }else if(d.event&&d.event.outcomes){
+    const e=d.event, outs=e.outcomes, labels=outs.map(o=>o.title), vals=outs.map(o=>+o.total_points||0), us=outs.reduce((a,o)=>a+(+o.total_users||0),0);
+    const st=String(e.status||'').toUpperCase(), id='tb:'+e.id, end=(Date.parse(e.created_at)||Date.now())+(e.prediction_window_seconds||0)*1000;
+    if(st==='RESOLVED'||(st==='RESOLVE_PENDING'&&e.winning_outcome_id)){ W.show(id,'bet',e.title,labels,0); W.set(vals,us); W.finish(outs.findIndex(o=>o.id===e.winning_outcome_id)); }
+    else if(st==='CANCELED'||st==='CANCEL_PENDING'){ W.show(id,'bet',e.title,labels,0); W.set(vals,us); W.finish(null,'Прогноз отменён'); }
+    else if(st==='LOCKED'||st==='RESOLVE_PENDING'){ W.show(id,'bet',e.title,labels,0); W.set(vals,us); W.lock(); }
+    else{ W.show(id,'bet',e.title,labels,end); W.set(vals,us); }
+  }
+}
+function twRaw(s){ try{ twMsg(typeof s==='string'?JSON.parse(s):s); }catch(e){ console.error('[Twitch]',e,s); } }
+async function connectTw(my){
+  const id=await twId(S.c);
+  if(my!==gen) return;
+  if(!id) return status('не удалось узнать ID канала — укажите его вручную в настройках','err');
+  const topics=['polls.'+id,'predictions-channel-v1.'+id]; let ok=false;
+  const good=()=>{ if(!ok&&my===gen){ok=true;status('подключено: '+S.c,'ok');} };
+  setTimeout(()=>{ if(!ok&&my===gen) status('Twitch не подтвердил подписку — откройте консоль (F12)','err'); },9000);
+  const rid=()=>Math.random().toString(36).slice(2,14);
+  /* основной канал: Hermes (его использует сам сайт Twitch) */
+  const h=add(new WebSocket('wss://hermes.twitch.tv/v1?clientId='+WEB_ID)); let sent=false;
+  const sub=()=>{ if(sent||h.readyState!==1) return; sent=true; topics.forEach(t=>h.send(JSON.stringify({type:'subscribe',id:rid(),subscribe:{id:rid(),type:'pubsub',pubsub:{topic:t}},timestamp:new Date().toISOString()}))); };
+  h.onopen=()=>setTimeout(sub,1200);
+  h.onmessage=e=>{
+    let m; try{m=JSON.parse(e.data);}catch(x){return;}
+    if(m.type==='welcome') sub();
+    else if(m.type==='subscribeResponse'){ if(m.subscribeResponse&&m.subscribeResponse.result==='ok') good(); else console.warn('[Hermes]',m); }
+    else if(m.type==='notification'&&m.notification&&m.notification.pubsub) twRaw(m.notification.pubsub);
+  };
+  h.onclose=()=>{ if(socks.includes(h)) retryLater(my); };
+  /* запасной канал: старый PubSub без авторизации */
+  const p=add(new WebSocket('wss://pubsub-edge.twitch.tv/v1'));
+  p.onopen=()=>{ p.send(JSON.stringify({type:'LISTEN',nonce:rid(),data:{topics}})); p._t=setInterval(()=>p.readyState===1&&p.send('{"type":"PING"}'),240000); };
+  p.onmessage=e=>{
+    let m; try{m=JSON.parse(e.data);}catch(x){return;}
+    if(m.type==='MESSAGE'&&m.data) twRaw(m.data.message);
+    else if(m.type==='RESPONSE'&&!m.error) good();
+    else if(m.type==='RECONNECT') p.close();
+  };
+  p.onclose=()=>{ clearInterval(p._t); };
+}
+
+/* ---------- Kick: события через Pusher ---------- */
+function kickPoll(d){
+  const p=d.poll||d, opts=p.options||[]; if(!opts.length) return;
+  const labels=opts.map(o=>o.label||o.title||''), vals=opts.map(o=>o.votes||0), rem=+p.remaining||0;
+  W.show('kp:'+p.title+'|'+labels.join('|'),'poll',p.title||'Опрос',labels,Date.now()+rem*1000,()=>W.finish(maxIdx(W.o.map(o=>o.v))));
+  W.set(vals);
+}
+function kickPred(d){
+  const p=d.prediction||d, outs=p.outcomes||p.options||[]; if(!outs.length) return;
+  console.log('[Kick prediction]',d);
+  const labels=outs.map(o=>o.title||o.label||o.name||''), vals=outs.map(o=>+(o.total_vote_amount??o.vote_amount??o.total_amount??o.amount??o.votes??0));
+  const st=String(p.state||p.status||'').toLowerCase(), id='kb:'+(p.id||p.title);
+  const end=p.locks_at?Date.parse(p.locks_at):(p.created_at&&p.duration?Date.parse(p.created_at)+p.duration*1000:0);
+  W.show(id,'bet',p.title||'Ставка',labels,end||0); W.set(vals);
+  if(/lock/.test(st)) W.lock();
+  if(/resolv/.test(st)){ const wi=outs.findIndex(o=>o.id===(p.winning_outcome_id||p.winning_outcome)); W.finish(wi); }
+  if(/cancel/.test(st)) W.finish(null,'Ставка отменена');
+}
+async function connectKick(my){
+  let id=S.cid, ch='';
+  try{ const r=await fetch('https://kick.com/api/v2/channels/'+encodeURIComponent(S.c)); const j=await r.json(); id=id||j.chatroom.id; ch=j.id; }
+  catch(e){ if(!id) return my===gen&&status('нет ID чата — укажите его вручную в настройках','err'); }
+  if(my!==gen) return;
+  const ws=add(new WebSocket('wss://ws-us2.pusher.com/app/32cbd69e4b950bf97679?protocol=7&client=js&version=8.4.0&flash=false'));
+  ws.onmessage=e=>{
+    const d=JSON.parse(e.data), ev=d.event||'';
+    if(ev==='pusher:connection_established'){
+      ['chatrooms.'+id+'.v2','chatroom_'+id].concat(ch?['channel_'+ch,'predictions-channel-'+ch]:[]).forEach(c=>ws.send(JSON.stringify({event:'pusher:subscribe',data:{auth:'',channel:c}})));
+    }else if(ev==='pusher_internal:subscription_succeeded') status('подключено: '+S.c,'ok');
+    else if(ev==='pusher:ping') ws.send(JSON.stringify({event:'pusher:pong',data:{}}));
+    else if(ev.indexOf('pusher')!==0){
+      try{
+        const data=typeof d.data==='string'?JSON.parse(d.data):d.data;
+        if(/PollUpdateEvent$/.test(ev)) kickPoll(data);
+        else if(/PollDeleteEvent$/.test(ev)) W.close();
+        else if(/Prediction(Created|Updated)$/.test(ev)) kickPred(data);
+      }catch(x){console.error(x);}
+    }
+  };
+  ws.onclose=()=>{ if(socks.includes(ws)) retryLater(my); };
+}
+
+/* ---------- режим OBS ---------- */
+if(OV){
+  document.body.classList.add('ov'); document.body.dataset.p=S.p;
+  $('#app').hidden=true; $('#fx').remove(); document.body.appendChild(wh);
+  style(); if(S.c) connect();
+  return;
+}
+
+/* ---------- экран 1 ---------- */
+function setPlatform(p){
+  S.p=p; document.body.dataset.p=p;
+  $$('.tab').forEach(t=>t.classList.toggle('on',t.dataset.p===p));
+  $('#sub').innerHTML='Введите канал <b>'+(p==='kick'?'Kick':'Twitch')+'</b> — опросы и ставки, созданные стримером или модераторами, появятся на экране сами';
+  $('#pre').textContent=p==='kick'?'kick.com/':'twitch.tv/';
+  $('#authgrp').hidden=p!=='twitch'; $('#kickgrp').hidden=p!=='kick'; style();
+}
+$$('.tab').forEach(t=>t.onclick=()=>{setPlatform(t.dataset.p);save();});
+const clean=v=>v.trim().replace(/^https?:\/\//i,'').replace(/^(www\.)?(kick\.com|twitch\.tv)\//i,'').split(/[/?#]/)[0].replace(/^@/,'');
+function go(){
+  const v=clean($('#ch').value), i=$('#ch');
+  if(!v){i.classList.add('bad');i.focus();return;}
+  S.c=v; save(); $('#s1').hidden=true; $('#s2').hidden=false; $('#fx').style.display='none';
+  $('#ttl').innerHTML=(S.p==='kick'?'Kick':'Twitch')+': <span></span>'; $('#ttl span').textContent=v;
+  $('#outcard').hidden=true; style(); connect(); window.scrollTo(0,0);
+}
+$('#go').onclick=go; $('#ch').value=S.c||'';
+$('#ch').addEventListener('input',e=>e.target.classList.remove('bad'));
+$('#ch').addEventListener('keydown',e=>{if(e.key==='Enter')go();});
+$('#back').onclick=()=>{disconnect();stopDemo();W.kill();status('не подключено');$('#s2').hidden=true;$('#s1').hidden=false;$('#fx').style.display='';};
+setPlatform(S.p==='twitch'?'twitch':'kick');
+
+/* заставка: пузырьки сообщений поднимаются вверх */
+(()=>{
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const fx=$('#fx'), C=['','','#ffd166','#6fb8ff','#ff7ab8','#b48cff','#7ef0c0'], R=(a,b)=>a+Math.random()*(b-a);
+  function spawn(seed){
+    const el=document.createElement('div'), dur=R(11,17), wide=innerWidth>900;
+    el.className='fb'; el.style.setProperty('--x',(wide?(Math.random()<.5?R(2,26):R(64,86)):R(2,66))+'%');
+    el.style.setProperty('--t',dur+'s'); el.style.setProperty('--sw',R(3,5)+'s'); el.style.setProperty('--w',Math.round(R(150,260))+'px');
+    const c=C[Math.floor(Math.random()*C.length)]; if(c) el.style.setProperty('--c',c);
+    if(seed) el.style.setProperty('--dl',-R(0,dur*.75)+'s');
+    el.innerHTML='<div class="fb-in"><b></b><span><i></i><i style="width:'+Math.round(R(55,100))+'%"></i></span></div>';
+    el.addEventListener('animationend',e=>{if(e.target===el)el.remove();}); fx.appendChild(el);
+  }
+  for(let i=0;i<6;i++) spawn(true);
+  setInterval(()=>{if(!document.hidden&&!$('#s1').hidden&&fx.children.length<14) spawn(false);},900);
+})();
+
+/* ---------- экран 2: настройки ---------- */
+const bind=(id,key,fmt)=>{
+  const el=$('#'+id); el.value=S[key]; const out=$('#v'+id);
+  if(out) out.textContent=fmt(S[key]);
+  el.addEventListener('input',()=>{S[key]=el.type==='range'?+el.value:el.value; if(out)out.textContent=fmt(S[key]); style(); save();});
+};
+bind('pos','pos');bind('sc','sc',v=>v+'%');
+$('#tid').value=S.tid; $('#tid').onchange=e=>{S.tid=e.target.value.trim();save();connect();};
+$('#cid').value=S.cid; $('#cid').onchange=e=>{S.cid=e.target.value.trim();save();connect();};
+$('#auto').checked=!S.acc; $('#acc').value=S.acc||'#53fc18';
+const accSync=()=>{$('#accrow').style.opacity=$('#auto').checked?.4:1;};
+$('#auto').onchange=()=>{S.acc=$('#auto').checked?'':$('#acc').value;accSync();style();save();};
+$('#acc').oninput=()=>{$('#auto').checked=false;S.acc=$('#acc').value;accSync();style();save();};
+accSync();
+$$('.chip[data-bg]').forEach(b=>b.onclick=()=>{$$('.chip[data-bg]').forEach(x=>x.classList.toggle('on',x===b));$('#pvbox').dataset.bg=b.dataset.bg;});
+
+/* демо */
+let demoT=0;
+function stopDemo(){clearInterval(demoT);}
+function demo(kind){
+  stopDemo(); const bet=kind==='bet';
+  const labels=bet?['Победим','Проиграем']:['Лес','Пещера','Город'], vals=labels.map(()=>0); let users=0;
+  const fin=()=>W.finish(maxIdx(vals));
+  W.show('demo'+Date.now(),kind,bet?'Выиграем следующий раунд?':'Куда идём дальше?',labels,Date.now()+25000,()=>{stopDemo(); if(bet){W.lock();setTimeout(fin,2500);}else fin();});
+  demoT=setInterval(()=>{
+    const i=Math.random()<.6?0:Math.floor(Math.random()*labels.length);
+    vals[i]+=bet?100+Math.floor(Math.random()*1900):1+Math.floor(Math.random()*4); users++; W.set(vals,users);
+  },450);
+}
+$('#dPoll').onclick=()=>demo('poll'); $('#dBet').onclick=()=>demo('bet');
+$('#dEnd').onclick=()=>{stopDemo();W.close();};
+
+/* ссылка для OBS */
+function buildUrl(){
+  const p=new URLSearchParams({o:1,p:S.p,c:S.c,pos:S.pos,sc:S.sc});
+  if(S.acc) p.set('acc',S.acc); if(S.cid&&S.p==='kick') p.set('cid',S.cid);
+  if(S.tid&&S.p==='twitch') p.set('tid',S.tid);
+  return location.href.split('?')[0].split('#')[0]+'?'+p;
+}
+$('#getlink').onclick=()=>{
+  $('#outurl').value=buildUrl(); $('#outcard').hidden=false;
+  $('#outcard').scrollIntoView({behavior:'smooth',block:'center'});
+};
+$('#copy').onclick=async()=>{
+  const i=$('#outurl'),b=$('#copy');
+  try{await navigator.clipboard.writeText(i.value);}catch(e){i.select();document.execCommand('copy');}
+  b.textContent='Скопировано'; setTimeout(()=>b.textContent='Копировать',1600);
+};
+})();
+</script>
+</body>
+</html>
