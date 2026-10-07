@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Опросы и ставки для OBS</title>
+<link rel="icon" type="image/png" href="web_icons.png?v=1">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -13,7 +14,7 @@
 html,body{margin:0;min-height:100%}
 body{--rgb:83,252,24;--accent:#53fc18;--ink:#0a0c08;--mono:'IBM Plex Mono',ui-monospace,Consolas,monospace;background:#08090d;color:#e6e7ef;font-family:'Space Grotesk',system-ui,sans-serif;-webkit-font-smoothing:antialiased;color-scheme:dark}
 body[data-p=twitch]{--rgb:145,70,255;--accent:#9146ff;--ink:#fff}
-body.ov{background:transparent}
+body.ov{background:transparent;overflow:hidden}
 button,input,select{font:inherit;color:inherit}
 button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 
@@ -106,45 +107,124 @@ h1{font-weight:700;font-size:clamp(26px,4vw,32px);margin:0 0 10px;letter-spacing
 .wh.tl{align-items:flex-start;justify-content:flex-start}.wh.tr{align-items:flex-start;justify-content:flex-end}
 .wh.cc{align-items:center;justify-content:center}
 .wh.bl .w{transform-origin:left bottom}.wh.br .w{transform-origin:right bottom}.wh.tl .w{transform-origin:left top}.wh.tr .w{transform-origin:right top}.wh.cc .w{transform-origin:center}
-.w{--s:1;transform:scale(var(--s));font-family:'Space Grotesk',system-ui,sans-serif;color:#e8ebf3;opacity:0;transition:opacity .3s}
+.w{--s:1;flex:none;transform:scale(var(--s));font-family:var(--wf);color:var(--fg);opacity:0;transition:opacity .3s}
 .w.show{opacity:1}
-.shell{width:152px;background:#11141c;border:1px solid rgba(255,255,255,.1);border-radius:24px;overflow:hidden;transform:scale(.4);transition:width .65s cubic-bezier(.2,.9,.2,1),transform .55s cubic-bezier(.3,1.5,.4,1),box-shadow .6s,border-radius .6s;box-shadow:0 14px 40px rgba(0,0,0,.5)}
-.w.show .shell{transform:none;box-shadow:0 14px 40px rgba(0,0,0,.5),0 0 0 1px rgba(var(--ar),.4),0 0 30px rgba(var(--ar),.25)}
-.w.open .shell{width:360px;border-radius:22px;box-shadow:0 18px 50px rgba(0,0,0,.55),0 0 0 1px rgba(var(--ar),.35),0 0 46px rgba(var(--ar),.18)}
+.shell{width:152px;background:rgba(var(--bgc),var(--bga));border:1px solid var(--bdc);border-radius:var(--rd);overflow:hidden;transform:scale(.4);transition:width .65s cubic-bezier(.2,.9,.2,1),transform .55s cubic-bezier(.3,1.5,.4,1),box-shadow .6s,border-radius .6s;box-shadow:var(--dsh1)}
+.w.show .shell{transform:none;box-shadow:var(--dsh1),0 0 0 1px rgba(var(--ar),.4),0 0 30px rgba(var(--ar),.25)}
+.w.open .shell{width:360px;box-shadow:var(--dsh2),0 0 0 1px rgba(var(--ar),.35),0 0 46px rgba(var(--ar),.18)}
 .hd{display:flex;align-items:center;gap:9px;padding:11px 16px;white-space:nowrap}
 .hd b{font-weight:600;font-size:14px;letter-spacing:.01em}
-.hd em{margin-left:auto;font:500 12px var(--mono);font-style:normal;color:#9aa1b3}
+.hd em{margin-left:auto;font:500 12px var(--mono);font-style:normal;color:var(--mu)}
 .dot{width:9px;height:9px;border-radius:50%;background:var(--ac);box-shadow:0 0 0 0 rgba(var(--ar),.7);animation:pulse 1.4s infinite}
 @keyframes pulse{70%{box-shadow:0 0 0 9px rgba(var(--ar),0)}100%{box-shadow:0 0 0 0 rgba(var(--ar),0)}}
-.w.done .dot{animation:none;background:#fff}
+.w.done .dot{animation:none;background:var(--dnd)}
 .bd{display:grid;grid-template-rows:0fr;transition:grid-template-rows .75s cubic-bezier(.2,.9,.2,1) .12s}
 .w.open .bd{grid-template-rows:1fr}
 .in{min-height:0;overflow:hidden;padding:0 14px}
 .w.open .in{padding-bottom:0}
 .q{margin:2px 2px 12px;font-weight:600;font-size:18px;line-height:1.25;overflow-wrap:anywhere;opacity:0;transform:translateY(6px);transition:.5s .35s}
 .w.open .q{opacity:1;transform:none}
-.os{display:grid;gap:7px}
-.o{position:relative;display:flex;align-items:center;gap:10px;height:46px;padding:0 12px;border-radius:13px;background:rgba(255,255,255,.05);overflow:hidden;opacity:0;transform:translateY(10px);transition:opacity .5s,transform .5s cubic-bezier(.2,.9,.3,1.2),box-shadow .4s,background .4s;transition-delay:0s}
-.w.open .o{opacity:1;transform:none;transition-delay:calc(.3s + var(--i)*.08s),calc(.3s + var(--i)*.08s),0s,0s}
-.fl{position:absolute;inset:0;transform-origin:left;transform:scaleX(var(--p,0));background:linear-gradient(90deg,rgba(var(--ar),.5),rgba(var(--ar),.22));border-right:2px solid rgba(var(--ar),.9);transition:transform .35s linear}
+.os{position:relative;height:calc(var(--n,1)*46px + (var(--n,1) - 1)*7px)}
+.o{--oc:var(--ac);--or:var(--ar);--oi:var(--ink);position:absolute;left:0;right:0;top:calc(var(--r,0)*53px);display:flex;align-items:center;gap:10px;height:46px;padding:0 12px;border-radius:calc(var(--rd)*.6);background:var(--rw);overflow:hidden;opacity:0;transform:translateY(10px);transition:opacity .5s,transform .5s cubic-bezier(.2,.9,.3,1.2),box-shadow .4s,background .4s,top .8s cubic-bezier(.3,1.15,.4,1);transition-delay:0s}
+.w.open .o{opacity:1;transform:none;transition-delay:calc(.3s + var(--i)*.08s),calc(.3s + var(--i)*.08s),0s,0s,0s}
+.fl{position:absolute;inset:0;transform-origin:left;transform:scaleX(var(--p,0));background:linear-gradient(90deg,rgba(var(--or),.5),rgba(var(--or),.22));border-right:2px solid rgba(var(--or),.9);transition:transform .35s linear}
 .o>*:not(.fl){position:relative}
-.ix{flex:none;width:22px;height:22px;border-radius:7px;display:grid;place-items:center;font:500 12px var(--mono);background:rgba(0,0,0,.35);color:#cfd2de}
+.ix{flex:none;width:22px;height:22px;border-radius:calc(var(--rd)*.32);display:grid;place-items:center;font:500 12px var(--mono);background:var(--ixb);color:var(--ixc)}
 .tx{flex:1;min-width:0;font-weight:500;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .pc{font-weight:700;font-size:20px;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
-.o.lead{box-shadow:inset 0 0 0 1px rgba(var(--ar),.55)}
-.o.lead .ix{background:var(--ac);color:var(--ink)}
+.o.col .ix{background:var(--oc);color:var(--oi)}
+.o.lead{box-shadow:inset 0 0 0 1px rgba(var(--or),.7)}
+.o.lead .ix{background:var(--oc);color:var(--oi)}
 .w.done .o:not(.lead):not(.win){opacity:.45}
-.o.win{box-shadow:inset 0 0 0 2px var(--ac),0 0 24px rgba(var(--ar),.4)}
-.o.win .ix{background:var(--ac);color:var(--ink)}
-.ft{display:flex;justify-content:space-between;gap:10px;padding:11px 3px 12px;font:12px var(--mono);color:#8f95a9;opacity:0;transition:opacity .5s .7s}
+.o.win{box-shadow:inset 0 0 0 2px var(--oc),0 0 24px rgba(var(--or),.4);animation:winpop .9s cubic-bezier(.2,1.4,.3,1),winglow 2.2s ease-in-out 1s infinite}
+.o.win::after{content:'';position:absolute;top:0;bottom:0;left:-45%;width:35%;transform:skewX(-20deg);background:linear-gradient(90deg,transparent,rgba(255,255,255,.3),transparent);animation:shine 2.8s ease-in-out .5s infinite;pointer-events:none}
+.o.win .ix{animation:trophy .8s cubic-bezier(.2,1.6,.3,1) .15s backwards}
+.o.up{z-index:2;animation:upf .9s ease}
+@keyframes winpop{0%{transform:scale(.96)}40%{transform:scale(1.05)}100%{transform:none}}
+@keyframes winglow{0%,100%{box-shadow:inset 0 0 0 2px var(--oc),0 0 18px rgba(var(--or),.35)}50%{box-shadow:inset 0 0 0 2px var(--oc),0 0 34px rgba(var(--or),.65)}}
+@keyframes shine{0%{left:-45%}55%,100%{left:130%}}
+@keyframes trophy{0%{transform:scale(0) rotate(-40deg)}100%{transform:none}}
+@keyframes upf{30%{background:rgba(var(--or),.28)}}
+.cfx{position:absolute;left:50%;top:23px;width:0;height:0;pointer-events:none;z-index:5}
+.cfx i{position:absolute;width:var(--sz);height:calc(var(--sz)*.5);border-radius:2px;background:var(--cc);opacity:0;animation:cf 1.8s cubic-bezier(.2,.7,.3,1) var(--dl) forwards}
+@keyframes cf{0%{transform:translate(0,0) rotate(0) scale(.4);opacity:1}55%{transform:translate(var(--dx),var(--dy)) rotate(var(--a1)) scale(1);opacity:1}100%{transform:translate(calc(var(--dx)*1.15),calc(var(--dy) + 90px)) rotate(var(--a2)) scale(.9);opacity:0}}
+.o.win .ix{background:var(--oc);color:var(--oi)}
+.ft{display:flex;justify-content:space-between;gap:10px;padding:11px 3px 12px;font:12px var(--mono);color:var(--mu2);opacity:0;transition:opacity .5s .7s}
 .w.open .ft{opacity:1}
-.ft b{color:#d6d9e4;font-weight:500}
-.tb{height:3px;margin:0 -14px;background:rgba(255,255,255,.06)}
+.ft b{color:var(--fg2);font-weight:500}
+.tb{height:3px;margin:0 -14px;background:var(--trk)}
 .tb i{display:block;height:100%;background:var(--ac);transform-origin:left;transform:scaleX(var(--t,1));box-shadow:0 0 10px var(--ac)}
 .w.done .tb{opacity:0}
-@media(prefers-reduced-motion:reduce){.shell,.bd,.o,.q,.fl{transition-duration:.01s!important;transition-delay:0s!important}.dot,.fb,.fb-in,#s1,#s1>*,#s2{animation:none!important}}
+@media(prefers-reduced-motion:reduce){.cfx{display:none}.o.win,.o.win::after,.o.win .ix,.o.up{animation:none!important}.shell,.bd,.o,.q,.fl{transition-duration:.01s!important;transition-delay:0s!important}.dot,.fb,.fb-in,#s1,#s1>*,#s2{animation:none!important}}
 .w.lock .dot{animation:none;background:#ffb020;box-shadow:0 0 10px #ffb020}
+/* без внешнего свечения */
+.wh.ng .w.show .shell{box-shadow:var(--dsh1),0 0 0 1px rgba(var(--ar),.4)}
+.wh.ng .w.open .shell{box-shadow:var(--dsh2),0 0 0 1px rgba(var(--ar),.35)}
+.wh.ng .o.win{box-shadow:inset 0 0 0 2px var(--oc)}
+.wh.ng .o.win,.wh.npu .o.win{animation:winpop .9s cubic-bezier(.2,1.4,.3,1)}
+.wh.ng .tb i,.wh.ng .w.lock .dot{box-shadow:none}
 .w.lock .tb i{background:#ffb020}
+.ft span{min-width:0}.ft .b{text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.w.cancel .o{opacity:.4!important}
+.w.cancel .ft .b{color:#ff7a7a;font-weight:600}
+.w.cancel .dot{background:#ff7a7a}
+/* ---------- темы оформления ---------- */
+.wh{--bgc:17,20,28;--bga:1;--fg:#e8ebf3;--mu:#9aa1b3;--mu2:#8f95a9;--fg2:#d6d9e4;--rw:rgba(255,255,255,.05);--bdc:rgba(255,255,255,.1);--ixb:rgba(0,0,0,.35);--ixc:#cfd2de;--trk:rgba(255,255,255,.06);--dnd:#fff;--dsh1:0 14px 40px rgba(0,0,0,.5);--dsh2:0 18px 50px rgba(0,0,0,.55);--rd:22px;--wf:'Space Grotesk',system-ui,sans-serif}
+.wh.th-light{--bgc:250,251,254;--fg:#151824;--mu:#5c6377;--mu2:#5c6377;--fg2:#151824;--rw:rgba(20,26,50,.07);--bdc:rgba(20,26,50,.14);--ixb:rgba(20,26,50,.1);--ixc:#2c3247;--trk:rgba(20,26,50,.09);--dnd:#151824;--dsh1:0 14px 40px rgba(20,30,60,.28);--dsh2:0 18px 50px rgba(20,30,60,.32)}
+.wh.th-glass{--bgc:30,34,50;--rw:rgba(255,255,255,.09);--bdc:rgba(255,255,255,.28);--ixb:rgba(255,255,255,.14)}
+.wh.th-glass .shell{background:linear-gradient(135deg,rgba(255,255,255,.2),rgba(255,255,255,.03)),rgba(var(--bgc),var(--bga))}
+.wh.th-min{--bgc:0,0,0;--rw:rgba(255,255,255,.08);--bdc:transparent}
+.wh.th-min .w .shell{box-shadow:none}
+.wh.th-neon{--bgc:8,6,16;--bdc:rgba(var(--ar),.85);--rw:rgba(var(--ar),.08)}
+.wh.th-neon .w.show .shell{box-shadow:var(--dsh1),0 0 0 1px rgba(var(--ar),.9),0 0 38px rgba(var(--ar),.5)}
+.wh.th-neon.ng .w.show .shell{box-shadow:var(--dsh1),0 0 0 1px rgba(var(--ar),.9)}
+.wh.th-grad .shell{background:linear-gradient(135deg,rgba(var(--ar),.34),rgba(var(--ar),.04) 70%),rgba(var(--bgc),var(--bga))}
+
+/* ---------- стили появления (раскрытие — по умолчанию) ---------- */
+.wh:not(.an-expand) .shell{width:360px;transition:transform .7s cubic-bezier(.2,.9,.2,1),filter .6s,box-shadow .6s}
+.wh:not(.an-expand) .bd{grid-template-rows:1fr;transition:none}
+.wh:not(.an-expand) .w{transition:opacity .25s}
+.wh:not(.an-expand) .w:not(.show){transition:opacity .3s .4s}
+.wh.an-fade .shell{transform:none}
+.wh.an-rise .shell{transform:translateY(46px);filter:blur(6px)}
+.wh.an-zoom .shell{transform:scale(.5)}
+.wh.an-drop .shell{transform:translateY(-80px)}
+.wh.an-zoom .shell,.wh.an-drop .shell{transition-timing-function:cubic-bezier(.3,1.5,.4,1)}
+.wh.an-slide.bl .shell,.wh.an-slide.tl .shell{transform:translateX(-115%)}
+.wh.an-slide.br .shell,.wh.an-slide.tr .shell{transform:translateX(115%)}
+.wh.an-slide.cc .shell{transform:translateY(60px)}
+.wh:not(.an-expand) .w.show .shell{transform:none;filter:none}
+
+/* ---------- отключаемые эффекты ---------- */
+.wh.nsh .o.win::after{display:none}
+.wh.nmv .o{transition:opacity .5s,transform .5s cubic-bezier(.2,.9,.3,1.2),box-shadow .4s,background .4s}
+
+/* ---------- компактная панель настроек ---------- */
+.panel{padding:2px 16px 8px}
+.sec{border-top:1px solid #1b1f2d}
+.panel>.sec:first-child,.panel>div:first-child>.sec{border-top:0}
+.sec>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:8px;font:500 11px var(--mono);color:var(--accent);letter-spacing:.06em;padding:11px 0;user-select:none}
+.sec>summary::-webkit-details-marker{display:none}
+.sec>summary::before{content:'\25B8';color:#7a8095;transition:transform .15s}
+.sec[open]>summary::before{transform:rotate(90deg)}
+.sec .row{border-top:0;padding:5px 0;gap:5px;font-size:13px}
+.sec .row.inl{gap:10px}
+.g2,.g3{display:grid;gap:0 22px}
+.g2{grid-template-columns:repeat(auto-fill,minmax(210px,1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+.sec .row select,.sec .row input[type=text]{padding:6px 9px;font-size:13px;border-radius:8px}
+.sec .row input[type=checkbox]{width:16px;height:16px}
+.sec .row input[type=color]{width:40px;height:24px}
+.sec .hint{font-size:11px;margin:2px 0 8px}
+.sec .row .hint{margin:0}
+.tgs{display:flex;flex-wrap:wrap;gap:6px;padding:4px 0 10px}
+.tg{position:relative;cursor:pointer}
+.tg input{position:absolute;opacity:0;pointer-events:none}
+.tg span{display:block;font:12px var(--mono);padding:6px 11px;border-radius:999px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.05);color:#9aa1b3;transition:.15s;user-select:none}
+.tg:hover span{border-color:rgba(var(--rgb),.6)}
+.tg input:checked+span{color:#fff;border-color:var(--accent);background:rgba(var(--rgb),.18)}
+.tg input:focus-visible+span{outline:2px solid var(--accent);outline-offset:2px}
+.panel .urlrow input,.panel .btn2{height:36px}
 </style>
 </head>
 <body>
@@ -184,25 +264,66 @@ h1{font-weight:700;font-size:clamp(26px,4vw,32px);margin:0 0 10px;letter-spacing
         <div class="pvbar" style="margin:10px 0 0">
           <button class="chip go" id="dPoll" type="button">Показать опрос</button>
           <button class="chip go" id="dBet" type="button">Показать ставку</button>
+          <button class="chip" id="dCancel" type="button">Отмена ставки</button>
           <button class="chip" id="dEnd" type="button">Завершить</button>
         </div>
       </div>
       <div class="card panel">
+        <details class="sec" open><summary>ВИДЖЕТ И ОФОРМЛЕНИЕ</summary>
+          <div class="g2">
+            <div class="row"><div class="lab">Положение</div>
+              <select id="pos"><option value="bl">Слева снизу</option><option value="br">Справа снизу</option><option value="tl">Слева сверху</option><option value="tr">Справа сверху</option><option value="cc">По центру</option></select></div>
+            <div class="row"><div class="lab">Размер <span class="val" id="vsc"></span></div><input type="range" id="sc" min="60" max="300" step="5"></div>
+            <div class="row"><div class="lab">Тема</div>
+              <select id="th"><option value="dark">Тёмная</option><option value="light">Светлая</option><option value="glass">Стекло</option><option value="min">Минимализм</option><option value="neon">Неон</option><option value="grad">Градиент</option></select></div>
+            <div class="row"><div class="lab">Шрифт</div>
+              <select id="fn"><option value="grotesk">Space Grotesk (кириллица — системным)</option><option value="inter">Inter</option><option value="montserrat">Montserrat</option><option value="rubik">Rubik</option><option value="manrope">Manrope</option><option value="unbounded">Unbounded</option><option value="exo2">Exo 2</option><option value="oswald">Oswald</option></select></div>
+            <div class="row"><div class="lab">Прозрачность <span class="val" id="vop"></span></div><input type="range" id="op" min="20" max="100" step="5"></div>
+            <div class="row"><div class="lab">Скругление <span class="val" id="vrd"></span></div><input type="range" id="rd" min="0" max="36" step="1"></div>
+            <div class="row inl"><span>Цвет платформы</span><input type="checkbox" id="auto"></div>
+            <div class="row inl" id="accrow"><span>Свой цвет</span><input type="color" id="acc"></div>
+          </div>
+          <p class="hint">Размер до 300%: в OBS виджет сам уменьшится, только если не помещается в окно источника (в предпросмотре он ограничен рамкой).</p>
+        </details>
+        <details class="sec" open><summary>АНИМАЦИЯ И ЭФФЕКТЫ</summary>
+          <div class="g2">
+            <div class="row"><div class="lab">Стиль появления</div>
+              <select id="an"><option value="expand">Раскрытие</option><option value="slide">Выезд сбоку</option><option value="rise">Всплытие</option><option value="zoom">Увеличение</option><option value="drop">Падение</option><option value="fade">Проявление</option></select></div>
+          </div>
+          <div class="tgs">
+            <label class="tg" title="Нужен только для источников больше 1920×1080: в 4K виджет станет вдвое крупнее. Ползунок «Размер» работает поверх этого. В предпросмотре не применяется."><input type="checkbox" id="as"><span>Автомасштаб 4K</span></label>
+            <label class="tg"><input type="checkbox" id="gl"><span>Внешнее свечение</span></label>
+            <label class="tg"><input type="checkbox" data-fx="1"><span>Конфетти</span></label>
+            <label class="tg"><input type="checkbox" data-fx="2"><span>Блик</span></label>
+            <label class="tg"><input type="checkbox" data-fx="4"><span>Пульсация рамки</span></label>
+            <label class="tg"><input type="checkbox" data-fx="8"><span>Кубок</span></label>
+            <label class="tg"><input type="checkbox" data-fx="16"><span>Переезд по местам</span></label>
+            <label class="tg"><input type="checkbox" data-fx="32"><span>Подсветка обгона</span></label>
+          </div>
+        </details>
+        <details class="sec" open><summary>ВРЕМЯ ПОКАЗА</summary>
+          <div class="g3">
+            <div class="row" title="Сколько держать лидера ставки, потом виджет прячется до результата."><div class="lab">После закрытия приёма <span class="val" id="vlk"></span></div><input type="range" id="lk" min="3" max="60" step="1"></div>
+            <div class="row" title="Сколько держать результат опроса или ставки на экране."><div class="lab">Итоги <span class="val" id="vrs"></span></div><input type="range" id="rs" min="3" max="60" step="1"></div>
+            <div class="row" title="Сколько держать сообщение об отмене ставки."><div class="lab">Отмена ставки <span class="val" id="vcs"></span></div><input type="range" id="cs" min="3" max="60" step="1"></div>
+          </div>
+        </details>
+        <details class="sec"><summary>ПРЕСЕТ</summary>
+          <div class="row"><div class="urlrow"><input id="pcode" aria-label="Код пресета" autocomplete="off" spellcheck="false"><button class="btn2" id="pcopy" type="button" style="font-size:13px">Копировать</button></div>
+            <p class="hint">Все настройки, кроме канала. Вставьте чужой код и нажмите Enter — настройки применятся.</p>
+            <button class="chip" id="plink" type="button" style="align-self:flex-start">Копировать ссылку на пресет</button></div>
+        </details>
         <div id="authgrp">
-          <div class="grp">TWITCH</div>
-          <p class="hint" style="margin:8px 0">Входить не нужно: опросы и ставки читаются из публичных событий канала, так же как их показывает сам сайт Twitch.</p>
-          <details class="row"><summary class="hint" style="cursor:pointer">ID канала вручную</summary><input type="text" id="tid" placeholder="например 123456789" style="margin-top:8px"><p class="hint" style="margin-top:6px">Нужен, если ID не определился сам.</p></details>
+          <details class="sec"><summary>TWITCH</summary>
+            <p class="hint">Входить не нужно: опросы и ставки читаются из публичных событий канала, так же как их показывает сам сайт Twitch.</p>
+            <div class="row"><div class="lab">ID канала вручную</div><input type="text" id="tid" placeholder="например 123456789"><p class="hint">Нужен, если ID не определился сам.</p></div>
+          </details>
         </div>
-        <div class="grp">ВИДЖЕТ</div>
-        <div class="row"><div class="lab">Положение на экране</div>
-          <select id="pos"><option value="bl">Слева снизу</option><option value="br">Справа снизу</option><option value="tl">Слева сверху</option><option value="tr">Справа сверху</option><option value="cc">По центру</option></select></div>
-        <div class="row"><div class="lab">Размер <span class="val" id="vsc"></span></div><input type="range" id="sc" min="60" max="180" step="5"></div>
-        <div class="row inl"><span>Цвет платформы</span><input type="checkbox" id="auto"></div>
-        <div class="row inl" id="accrow"><span>Свой цвет</span><input type="color" id="acc"></div>
         <div id="kickgrp">
-          <div class="grp">KICK</div>
-          <p class="hint" style="margin:8px 0">Входить никуда не нужно: опросы Kick читаются из открытого чата канала.</p>
-          <details class="row"><summary class="hint" style="cursor:pointer">ID чата вручную</summary><input type="text" id="cid" placeholder="например 12345678" style="margin-top:8px"><p class="hint" style="margin-top:6px">Нужен, если Kick не отдаёт ID автоматически.</p></details>
+          <details class="sec"><summary>KICK</summary>
+            <p class="hint">Входить никуда не нужно: опросы Kick читаются из открытого чата канала.</p>
+            <div class="row"><div class="lab">ID чата вручную</div><input type="text" id="cid" placeholder="например 12345678"><p class="hint">Нужен, если Kick не отдаёт ID автоматически.</p></div>
+          </details>
         </div>
       </div>
     </div>
@@ -212,7 +333,7 @@ h1{font-weight:700;font-size:clamp(26px,4vw,32px);margin:0 0 10px;letter-spacing
       <div class="urlrow"><input id="outurl" readonly><button class="btn2" id="copy" type="button">Копировать</button></div>
       <ol class="steps">
         <li>В OBS: <code>Источники</code> → <code>+</code> → <code>Браузер</code>.</li>
-        <li>Вставьте ссылку в <code>URL</code>, размер <code>1920×1080</code> — виджет сам встанет в выбранный угол.</li>
+        <li>Вставьте ссылку в <code>URL</code>. Размер источника любой (например <code>1920×1080</code>) — виджет сам встанет в выбранный угол и уменьшится, если не помещается в окно.</li>
         <li>Фон прозрачный. Изменили настройки — скопируйте ссылку заново.</li>
       </ol>
     </div>
@@ -223,46 +344,113 @@ h1{font-weight:700;font-size:clamp(26px,4vw,32px);margin:0 0 10px;letter-spacing
 (()=>{
 'use strict';
 const $=s=>document.querySelector(s), $$=s=>document.querySelectorAll(s);
-const D={p:'kick',c:'',pos:'bl',sc:100,acc:'',cid:'',tid:''};
+const D={p:'kick',c:'',pos:'bl',sc:100,acc:'',cid:'',tid:'',lk:10,rs:12,as:0,gl:1,cs:12,th:'dark',op:100,rd:22,fn:'grotesk',an:'expand',fx:63};
 let S={...D};
 const Q=new URLSearchParams(location.search), OV=Q.get('o')==='1';
 try{ if(!OV) Object.assign(S,JSON.parse(localStorage.getItem('pbw')||'{}')); }catch(e){}
+/* пресет: pos-размер-цвет-«закрыто»-итоги-автомасштаб-свечение-отмена-тема-прозрачность-скругление-шрифт-появление-эффекты */
+const POS=['bl','br','tl','tr','cc'], clamp=(v,a,b,d)=>{v=+v;return isFinite(v)&&v>=a?Math.min(b,v):d;};
+const TH=['dark','light','glass','min','neon','grad'], AN=['expand','slide','rise','zoom','drop','fade'], TB={dark:1,light:1,glass:.55,min:.45,neon:.92,grad:1};
+const FT=[{k:'grotesk',n:'Space Grotesk',q:'Space+Grotesk'},{k:'inter',n:'Inter',q:'Inter'},{k:'montserrat',n:'Montserrat',q:'Montserrat'},{k:'rubik',n:'Rubik',q:'Rubik'},{k:'manrope',n:'Manrope',q:'Manrope'},{k:'unbounded',n:'Unbounded',q:'Unbounded'},{k:'exo2',n:'Exo 2',q:'Exo+2'},{k:'oswald',n:'Oswald',q:'Oswald'}];
+const fontIdx=k=>Math.max(0,FT.findIndex(f=>f.k===k));
+const loaded={};
+function loadFont(){
+  const f=FT[fontIdx(S.fn)];
+  if(!loaded[f.k]){ loaded[f.k]=1; const l=document.createElement('link'); l.rel='stylesheet'; l.href='https://fonts.googleapis.com/css2?family='+f.q+':wght@500;600;700&display=swap'; document.head.appendChild(l); }
+  return "'"+f.n+"',system-ui,sans-serif";
+}
+function parsePreset(str){
+  const a=String(str||'').trim().replace(/^.*preset=/,'').split('-'); if(a.length<2||!POS.includes(a[0])) return null;
+  const o={pos:a[0]}; if(a[1]!==undefined) o.sc=clamp(a[1],60,300,100);
+  if(a[2]!==undefined) o.acc=/^[0-9a-f]{6}$/i.test(a[2])?'#'+a[2].toLowerCase():'';
+  if(a[3]!==undefined) o.lk=clamp(a[3],3,60,10); if(a[4]!==undefined) o.rs=clamp(a[4],3,60,12);
+  if(a[5]!==undefined) o.as=a[5]==='1'?1:0; if(a[6]!==undefined) o.gl=a[6]==='1'?1:0; if(a[7]!==undefined) o.cs=clamp(a[7],3,60,12);
+  if(TH[+a[8]]) o.th=TH[+a[8]]; if(a[9]!==undefined) o.op=clamp(a[9],20,100,100); if(a[10]!==undefined) o.rd=clamp(a[10],0,36,22);
+  if(FT[+a[11]]) o.fn=FT[+a[11]].k; if(AN[+a[12]]) o.an=AN[+a[12]]; if(a[13]!==undefined) o.fx=clamp(a[13],0,63,63)|0; return o;
+}
+function presetCode(){ return [S.pos,S.sc,S.acc?S.acc.slice(1):'0',S.lk,S.rs,S.as?1:0,S.gl?1:0,S.cs,Math.max(0,TH.indexOf(S.th)),S.op,S.rd,fontIdx(S.fn),Math.max(0,AN.indexOf(S.an)),S.fx].join('-'); }
+if(Q.has('preset')) Object.assign(S,parsePreset(Q.get('preset'))||{});
 for(const k in D) if(Q.has(k)) S[k]=typeof D[k]==='number'?+Q.get(k):Q.get(k);
-const save=()=>{try{localStorage.setItem('pbw',JSON.stringify(S))}catch(e){}};
+S.lk=clamp(S.lk,3,60,10); S.rs=clamp(S.rs,3,60,12); S.cs=clamp(S.cs,3,60,12);
+if(!TH.includes(S.th)) S.th='dark'; if(!AN.includes(S.an)) S.an='expand'; if(!FT.some(f=>f.k===S.fn)) S.fn='grotesk';
+S.op=clamp(S.op,20,100,100); S.rd=clamp(S.rd,0,36,22); S.fx=clamp(S.fx,0,63,63)|0; S.sc=clamp(S.sc,30,400,100); S.as=+S.as?1:0; S.gl=+S.gl?1:0;
+const save=()=>{try{localStorage.setItem('pbw',JSON.stringify(S))}catch(e){} const pc=document.querySelector('#pcode'); if(pc&&document.activeElement!==pc) pc.value=presetCode();};
+/* автомасштаб: за основу 1920×1080, работает только в OBS */
+const autoK=()=>OV&&S.as?Math.max(1,Math.min(innerWidth/1920,innerHeight/1080)):1; /* только увеличивает: в источнике меньше 1920×1080 размер остаётся классическим */
 const hex2rgb=h=>[1,3,5].map(i=>parseInt(h.slice(i,i+2),16)).join(',');
 const nf=n=>Math.round(n).toLocaleString('ru-RU');
 const maxIdx=a=>a.reduce((b,v,i)=>v>a[b]?i:b,0);
+/* цвета вариантов как на Twitch: 1 — синий, 2 — розовый */
+const TW_COL={BLUE:'#387aff',PINK:'#f5009b'}, TW_ALT=['#387aff','#f5009b','#1fc7a7','#ffb020','#9146ff','#ff6a3d','#7ed957','#00bcd4','#b9a7ff','#ff9ec7'];
+/* Kick: 1 — мятно-зелёный, 2 — розовый */
+const KICK_ALT=['#26f2b2','#f08fa0','#6fb8ff','#ffd166','#b48cff','#ff9a5c','#7ef0c0','#ff7ab8','#9fe870','#c0c8ff'];
+const twCol=(o,i)=>TW_COL[String(o.color||'').toUpperCase()]||TW_ALT[i%TW_ALT.length];
 
+
+const TROPHY='<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4h8v5a4 4 0 0 1-8 0V4Z" fill="currentColor"/><path d="M8 6H4.5v1.5A3.5 3.5 0 0 0 8 11M16 6h3.5v1.5A3.5 3.5 0 0 1 16 11M12 13v7M8.5 20h7"/></svg>';
 /* ---------- виджет ---------- */
 class Widget{
-  constructor(h){this.h=h;this.w=null}
-  show(id,kind,title,labels,end,onEnd){
+  constructor(h){this.h=h;this.w=null;this.fin=new Map()}
+  isFin(id){ const t=this.fin.get(id); if(!t) return false; if(Date.now()>t){this.fin.delete(id);return false;} return true; }
+  show(id,kind,title,labels,end,onEnd,colors){
+    if(this.parked===id||this.isFin(id)) return; /* уже показали итоги — повторно с нуля не открываем */
     if(this.w&&this.id===id&&!this.done){ if(end) this.end=end; return; }
-    this.kill(); Object.assign(this,{id,kind,end,onEnd,done:false,locked:false,users:null});
+    this.kill(); this._s=null; Object.assign(this,{id,kind,end,onEnd,title,labels,colors,done:false,locked:false,parked:null,users:null,top:null});
     this.dur=Math.max(1000,(end||0)-Date.now());
     this.o=labels.map(t=>({t,v:0,d:0}));
     const w=document.createElement('div'); w.className='w';
     w.innerHTML='<div class="shell"><div class="hd"><i class="dot"></i><b></b><em></em></div><div class="bd"><div class="in"><p class="q"></p><div class="os"></div><div class="ft"><span class="a"></span><span class="b"></span></div><div class="tb"><i></i></div></div></div></div>';
     w.querySelector('b').textContent=kind==='bet'?'Ставка':'Опрос';
     w.querySelector('.q').textContent=title;
-    const os=w.querySelector('.os');
-    this.o.forEach((o,i)=>{const r=document.createElement('div');r.className='o';r.style.setProperty('--i',i);
+    const os=w.querySelector('.os'); os.style.setProperty('--n',labels.length);
+    this.o.forEach((o,i)=>{const r=document.createElement('div');r.className='o';r.style.setProperty('--i',i);r.style.setProperty('--r',i);
       r.innerHTML='<div class="fl"></div><span class="ix"></span><span class="tx"></span><span class="pc">0%</span>';
+      const c=colors&&colors[i]; if(c){r.classList.add('col');r.style.setProperty('--oc',c);r.style.setProperty('--or',hex2rgb(c));const L=hex2rgb(c).split(',').reduce((a,v,k)=>a+v*[.299,.587,.114][k],0); r.style.setProperty('--oi',L>150?'#0a0c08':'#fff');}
       r.querySelector('.ix').textContent=i+1; r.querySelector('.tx').textContent=o.t; o.el=r; o.pc=r.querySelector('.pc'); o.fl=r.querySelector('.fl'); os.appendChild(r);});
     this.h.appendChild(w); this.w=w; this.apply();
     requestAnimationFrame(()=>requestAnimationFrame(()=>w.classList.add('show')));
-    this.t1=setTimeout(()=>w.classList.add('open'),480);
+    this.t1=setTimeout(()=>w.classList.add('open'),S.an==='expand'?480:140);
     this.ti=setInterval(()=>this.tick(),200); this.tick(); this.set([]); this.loop();
   }
-  apply(){ if(this.w) this.w.style.setProperty('--s',S.sc/100); }
+  /* подгонка под окно: если виджет с текущим размером не помещается — уменьшаем */
+  apply(){
+    const w=this.w, h=this.h; if(!w) return;
+    const base=S.sc/100*autoK(), cs=getComputedStyle(h);
+    const aw=h.clientWidth-2*(parseFloat(cs.paddingLeft)||0), ah=h.clientHeight-2*(parseFloat(cs.paddingTop)||0);
+    const hd=w.querySelector('.hd'), inn=w.querySelector('.in');
+    const nw=362, nh=(hd?hd.offsetHeight:44)+(inn?inn.scrollHeight:0)+2;
+    let k=1; if(aw>0&&ah>0) k=Math.min(1,aw/(nw*base),ah/(nh*base));
+    const v=+(base*k).toFixed(4); if(this._s!==v){this._s=v; w.style.setProperty('--s',v);}
+  }
   tot(){return this.o.reduce((a,o)=>a+o.v,0)}
   set(vals,users){
     if(!this.w) return; vals.forEach((v,i)=>this.o[i]&&(this.o[i].v=v)); if(users!=null) this.users=users;
     this.w.querySelector('.a').innerHTML=(this.kind==='bet'?'Банк: ':'Голосов: ')+'<b>'+nf(this.tot())+'</b>';
     if(!this.done&&!this.locked) this.w.querySelector('.b').textContent=this.users!=null?'Участников: '+nf(this.users):'';
+    else this.lockTxt();
+    this.rank();
+  }
+  /* места по голосам: лидер сверху, ряды плавно переезжают */
+  rank(){
+    if(!this.o||!this.w) return;
+    const ord=this.o.map((_,i)=>i).sort((a,b)=>((b===this.top)-(a===this.top))||(this.o[b].v-this.o[a].v)||(a-b));
+    ord.forEach((idx,r)=>{
+      const o=this.o[idx];
+      if((S.fx&32)&&o.r!==undefined&&r<o.r&&!this.done&&this.w.classList.contains('open')){ o.el.classList.remove('up'); void o.el.offsetWidth; o.el.classList.add('up'); setTimeout(()=>o.el.classList.remove('up'),900); }
+      o.r=r; o.el.style.setProperty('--r',r);
+    });
+  }
+  burst(){
+    const os=this.w&&this.w.querySelector('.os'); if(!os) return;
+    const R=(a,b)=>a+Math.random()*(b-a), cf=document.createElement('div'), C=['var(--ac)','#ffd166','#fff','#6fb8ff','#ff7ab8','#7ef0c0'];
+    cf.className='cfx';
+    for(let i=0;i<28;i++){const p=document.createElement('i'),st=p.style;
+      st.setProperty('--dx',R(-170,170)+'px');st.setProperty('--dy',R(-70,40)+'px');st.setProperty('--a1',R(-240,240)+'deg');st.setProperty('--a2',R(-540,540)+'deg');
+      st.setProperty('--sz',Math.round(R(5,9))+'px');st.setProperty('--cc',C[i%C.length]);st.setProperty('--dl',R(.05,.35)+'s'); cf.appendChild(p);}
+    os.appendChild(cf); clearTimeout(this.tcf); this.tcf=setTimeout(()=>cf.remove(),2600);
   }
   tick(){
-    if(!this.w||this.done) return;
+    if(!this.w||this.done) return; this.apply();
     const em=this.w.querySelector('em'), bar=this.w.querySelector('.tb i');
     if(this.locked){ em.textContent='закрыто'; bar.style.setProperty('--t',0); return; }
     if(!this.end){ em.textContent=''; return; }
@@ -271,7 +459,27 @@ class Widget{
     bar.style.setProperty('--t',Math.min(1,rem/this.dur));
     if(!rem&&this.onEnd){const f=this.onEnd;this.onEnd=null;f();}
   }
-  lock(){ if(!this.w||this.done) return; this.locked=true; this.w.classList.add('lock'); this.w.querySelector('.b').textContent='Приём ставок закрыт'; this.tick(); }
+  lock(){
+    if(!this.w||this.done||this.locked) return;
+    this.locked=true; this.w.classList.add('lock'); this.tick(); this.lockTxt();
+    /* показали за кого ставят больше всего — и прячем до результата */
+    this.tl=setTimeout(()=>{ if(this.done) return; this.parked=this.id; this.close(); },S.lk*1000);
+  }
+  lockTxt(){
+    if(!this.locked||this.done||!this.w) return;
+    const tot=this.tot(), b=this.w.querySelector('.b');
+    if(!tot){ b.textContent='Приём ставок закрыт'; return; }
+    const o=this.o[maxIdx(this.o.map(x=>x.v))];
+    b.innerHTML='Больше всего за: <b></b>'; b.querySelector('b').textContent=o.t+' · '+Math.round(o.v/tot*100)+'%';
+  }
+  unpark(id){ if(this.parked===id) this.parked=null; }
+  reveal(win,msg){
+    if(this.done) return;
+    this.unpark(this.id);
+    if(!this.w){ const v=this.o.map(o=>o.v), u=this.users; this.show(this.id,this.kind,this.title,this.labels,0,null,this.colors); this.set(v,u); }
+    this.finish(win,msg);
+  }
+  cancel(){ if(this.kind==='bet'&&this.o) this.reveal(null,'Отмена ставки'); }
   loop(){
     const tot=this.tot(), mx=Math.max(0,...this.o.map(o=>o.v));
     this.o.forEach(o=>{
@@ -282,26 +490,29 @@ class Widget{
     this.raf=requestAnimationFrame(()=>this.loop());
   }
   finish(win,msg){
-    if(!this.w||this.done) return; this.done=true; clearInterval(this.ti);
-    const w=this.w; w.classList.remove('lock'); w.classList.add('done'); w.querySelector('b').textContent='Итоги'; w.querySelector('em').textContent='';
+    if(!this.w||this.done) return; this.done=true; clearInterval(this.ti); clearTimeout(this.tl); clearTimeout(this.ts); clearTimeout(this.tk); clearTimeout(this.tc); this.parked=null;
+    const w=this.w; w.classList.remove('lock'); w.classList.add('done','show','open'); if(msg) w.classList.add('cancel'); w.querySelector('b').textContent=msg?'Ставка':'Итоги'; w.querySelector('em').textContent='';
     const tot=this.tot(), b=w.querySelector('.b');
     if(!msg&&win!=null&&win>=0&&this.o[win]&&tot){
-      const o=this.o[win]; o.el.classList.add('win');
+      const o=this.o[win]; o.el.classList.add('win'); if(S.fx&8) o.el.querySelector('.ix').innerHTML=TROPHY; this.top=win; this.rank(); if(S.fx&1) this.burst();
       b.innerHTML='Победил: <b></b>'; b.querySelector('b').textContent=o.t+(this.kind==='bet'&&o.v?' · ×'+(tot/o.v).toFixed(2):'');
     } else b.textContent=msg||(tot?'Завершено':'Никто не голосовал');
-    this.tc=setTimeout(()=>this.close(),12000);
+    this.fin.set(this.id,Date.now()+(String(this.id).indexOf('kp:')===0?180000:3600000));
+    this.tc=setTimeout(()=>this.close(),(msg?S.cs:S.rs)*1000); this.apply();
   }
   close(){
-    const w=this.w; if(!w) return; clearTimeout(this.tc); w.classList.remove('open');
-    setTimeout(()=>w.classList.remove('show'),900); setTimeout(()=>{if(this.w===w) this.kill()},1500);
+    const w=this.w; if(!w) return; clearTimeout(this.tc); clearTimeout(this.tl);
+    if(S.an==='expand'){ w.classList.remove('open'); this.ts=setTimeout(()=>w.classList.remove('show'),900); this.tk=setTimeout(()=>{if(this.w===w) this.kill()},1500); }
+    else{ w.classList.remove('show'); this.tk=setTimeout(()=>{if(this.w===w) this.kill()},1100); }
   }
-  kill(){ clearTimeout(this.t1);clearTimeout(this.tc);clearInterval(this.ti);cancelAnimationFrame(this.raf); if(this.w) this.w.remove(); this.w=null; }
+  kill(){ clearTimeout(this.tcf);clearTimeout(this.t1);clearTimeout(this.tc);clearTimeout(this.tl);clearTimeout(this.ts);clearTimeout(this.tk);clearInterval(this.ti);cancelAnimationFrame(this.raf); if(this.w) this.w.remove(); this.w=null; }
 }
 const wh=$('#wh'), W=new Widget(wh);
 function style(){
-  wh.className='wh '+S.pos+(OV?' fx':'');
+  wh.className='wh '+S.pos+(S.gl?'':' ng')+' th-'+S.th+' an-'+S.an+(S.fx&2?'':' nsh')+(S.fx&4?'':' npu')+(S.fx&16?'':' nmv')+(OV?' fx':'');
+  wh.style.setProperty('--bga',+(TB[S.th]*S.op/100).toFixed(3)); wh.style.setProperty('--rd',S.rd+'px'); wh.style.setProperty('--wf',loadFont());
   const c=S.acc||(S.p==='twitch'?'#9146ff':'#53fc18');
-  wh.style.setProperty('--ac',c); wh.style.setProperty('--ar',hex2rgb(c)); W.apply();
+  wh.style.setProperty('--ac',c); wh.style.setProperty('--ar',hex2rgb(c)); wh.style.padding=(OV?Math.max(4,Math.round(Math.min(22*autoK(),Math.min(innerWidth,innerHeight)*.05))):22)+'px'; W.apply();
 }
 
 /* ---------- общие сокеты ---------- */
@@ -315,6 +526,14 @@ function retryLater(my){ if(my===gen){status('переподключение…'
 /* ---------- Twitch: публичные события канала, вход не нужен ---------- */
 const WEB_ID='kimne78kx3ncx6brgo4mv6wki5h1ko';
 const num=v=>v&&typeof v==='object'?+(v.total??0)||0:+v||0;
+/* голоса варианта: Twitch может отдавать их в разных полях */
+function twVotes(c){
+  const v=c.votes, n=[];
+  if(v&&typeof v==='object') n.push(num(v),(+v.base||0)+(+v.bits||0)+(+v.channel_points||0));
+  else n.push(+v||0);
+  n.push(+c.total_voters||0,+c.voters||0,(+c.bits_votes||0)+(+c.channel_points_votes||0));
+  return Math.max(0,...n.filter(isFinite));
+}
 async function twId(login){
   if(S.tid) return S.tid;
   try{
@@ -328,8 +547,9 @@ function twMsg(m){
   const d=m.data||{};
   if(d.poll){
     const p=d.poll, ch=p.choices||[]; if(!ch.length) return;
-    const labels=ch.map(c=>c.title), vals=ch.map(c=>num(c.votes??c.total_voters)), st=String(p.status||'').toUpperCase();
+    const labels=ch.map(c=>c.title), vals=ch.map(twVotes), st=String(p.status||'').toUpperCase();
     const id='tp:'+(p.poll_id||p.id||p.title), end=(Date.parse(p.started_at)||Date.now())+(p.duration_seconds||0)*1000;
+    console.log('[Twitch poll]',st,vals,p);
     if(st==='ARCHIVED') return;
     if(st==='MODERATED') return W.close();
     if(st==='COMPLETED'||st==='TERMINATED'){ W.show(id,'poll',p.title,labels,0); W.set(vals); W.finish(maxIdx(vals)); }
@@ -337,10 +557,11 @@ function twMsg(m){
   }else if(d.event&&d.event.outcomes){
     const e=d.event, outs=e.outcomes, labels=outs.map(o=>o.title), vals=outs.map(o=>+o.total_points||0), us=outs.reduce((a,o)=>a+(+o.total_users||0),0);
     const st=String(e.status||'').toUpperCase(), id='tb:'+e.id, end=(Date.parse(e.created_at)||Date.now())+(e.prediction_window_seconds||0)*1000;
-    if(st==='RESOLVED'||(st==='RESOLVE_PENDING'&&e.winning_outcome_id)){ W.show(id,'bet',e.title,labels,0); W.set(vals,us); W.finish(outs.findIndex(o=>o.id===e.winning_outcome_id)); }
-    else if(st==='CANCELED'||st==='CANCEL_PENDING'){ W.show(id,'bet',e.title,labels,0); W.set(vals,us); W.finish(null,'Прогноз отменён'); }
-    else if(st==='LOCKED'||st==='RESOLVE_PENDING'){ W.show(id,'bet',e.title,labels,0); W.set(vals,us); W.lock(); }
-    else{ W.show(id,'bet',e.title,labels,end); W.set(vals,us); }
+    const cols=outs.map(twCol);
+    if(st==='RESOLVED'||(st==='RESOLVE_PENDING'&&e.winning_outcome_id)){ W.unpark(id); W.show(id,'bet',e.title,labels,0,null,cols); W.set(vals,us); W.finish(outs.findIndex(o=>o.id===e.winning_outcome_id)); }
+    else if(st==='CANCELED'||st==='CANCEL_PENDING'){ W.unpark(id); W.show(id,'bet',e.title,labels,0,null,cols); W.set(vals,us); W.finish(null,'Отмена ставки'); }
+    else if(st==='LOCKED'||st==='RESOLVE_PENDING'){ W.show(id,'bet',e.title,labels,0,null,cols); W.set(vals,us); W.lock(); }
+    else{ W.show(id,'bet',e.title,labels,end,null,cols); W.set(vals,us); }
   }
 }
 function twRaw(s){ try{ twMsg(typeof s==='string'?JSON.parse(s):s); }catch(e){ console.error('[Twitch]',e,s); } }
@@ -357,12 +578,13 @@ async function connectTw(my){
   const sub=()=>{ if(sent||h.readyState!==1) return; sent=true; topics.forEach(t=>h.send(JSON.stringify({type:'subscribe',id:rid(),subscribe:{id:rid(),type:'pubsub',pubsub:{topic:t}},timestamp:new Date().toISOString()}))); };
   h.onopen=()=>setTimeout(sub,1200);
   h.onmessage=e=>{
-    let m; try{m=JSON.parse(e.data);}catch(x){return;}
-    if(m.type==='welcome') sub();
+    h._seen=Date.now(); let m; try{m=JSON.parse(e.data);}catch(x){return;}
+    if(m.type==='welcome'){ sub(); const k=+(m.welcome&&(m.welcome.keepaliveSecs||m.welcome.keepaliveSec))||10; clearInterval(h._w); h._seen=Date.now(); h._w=setInterval(()=>{ if(Date.now()-h._seen>k*3000+5000) h.close(); },5000); }
+    else if(m.type==='reconnect'){ h.close(); }
     else if(m.type==='subscribeResponse'){ if(m.subscribeResponse&&m.subscribeResponse.result==='ok') good(); else console.warn('[Hermes]',m); }
     else if(m.type==='notification'&&m.notification&&m.notification.pubsub) twRaw(m.notification.pubsub);
   };
-  h.onclose=()=>{ if(socks.includes(h)) retryLater(my); };
+  h.onclose=()=>{ clearInterval(h._w); if(socks.includes(h)) retryLater(my); };
   /* запасной канал: старый PubSub без авторизации */
   const p=add(new WebSocket('wss://pubsub-edge.twitch.tv/v1'));
   p.onopen=()=>{ p.send(JSON.stringify({type:'LISTEN',nonce:rid(),data:{topics}})); p._t=setInterval(()=>p.readyState===1&&p.send('{"type":"PING"}'),240000); };
@@ -372,7 +594,7 @@ async function connectTw(my){
     else if(m.type==='RESPONSE'&&!m.error) good();
     else if(m.type==='RECONNECT') p.close();
   };
-  p.onclose=()=>{ clearInterval(p._t); };
+  p.onclose=()=>{ clearInterval(p._t); if(socks.includes(p)) retryLater(my); };
 }
 
 /* ---------- Kick: события через Pusher ---------- */
@@ -388,10 +610,11 @@ function kickPred(d){
   const labels=outs.map(o=>o.title||o.label||o.name||''), vals=outs.map(o=>+(o.total_vote_amount??o.vote_amount??o.total_amount??o.amount??o.votes??0));
   const st=String(p.state||p.status||'').toLowerCase(), id='kb:'+(p.id||p.title);
   const end=p.locks_at?Date.parse(p.locks_at):(p.created_at&&p.duration?Date.parse(p.created_at)+p.duration*1000:0);
-  W.show(id,'bet',p.title||'Ставка',labels,end||0); W.set(vals);
+  if(/resolv|cancel/.test(st)) W.unpark(id);
+  W.show(id,'bet',p.title||'Ставка',labels,end||0,null,labels.map((_,i)=>KICK_ALT[i%KICK_ALT.length])); W.set(vals);
   if(/lock/.test(st)) W.lock();
   if(/resolv/.test(st)){ const wi=outs.findIndex(o=>o.id===(p.winning_outcome_id||p.winning_outcome)); W.finish(wi); }
-  if(/cancel/.test(st)) W.finish(null,'Ставка отменена');
+  if(/cancel/.test(st)) W.finish(null,'Отмена ставки');
 }
 async function connectKick(my){
   let id=S.cid, ch='';
@@ -411,6 +634,7 @@ async function connectKick(my){
         if(/PollUpdateEvent$/.test(ev)) kickPoll(data);
         else if(/PollDeleteEvent$/.test(ev)) W.close();
         else if(/Prediction(Created|Updated)$/.test(ev)) kickPred(data);
+        else if(/Prediction.*(Delete|Cancel)/i.test(ev)) W.cancel();
       }catch(x){console.error(x);}
     }
   };
@@ -421,7 +645,7 @@ async function connectKick(my){
 if(OV){
   document.body.classList.add('ov'); document.body.dataset.p=S.p;
   $('#app').hidden=true; $('#fx').remove(); document.body.appendChild(wh);
-  style(); if(S.c) connect();
+  style(); addEventListener('resize',style); if(S.c) connect();
   return;
 }
 
@@ -471,7 +695,10 @@ const bind=(id,key,fmt)=>{
   if(out) out.textContent=fmt(S[key]);
   el.addEventListener('input',()=>{S[key]=el.type==='range'?+el.value:el.value; if(out)out.textContent=fmt(S[key]); style(); save();});
 };
-bind('pos','pos');bind('sc','sc',v=>v+'%');
+bind('pos','pos');bind('sc','sc',v=>v+'%');bind('lk','lk',v=>v+' с');bind('rs','rs',v=>v+' с');bind('cs','cs',v=>v+' с');bind('op','op',v=>v+'%');bind('rd','rd',v=>v+' px');bind('th','th');bind('fn','fn');bind('an','an');
+const syncFx=()=>$$('[data-fx]').forEach(c=>c.checked=!!(S.fx&+c.dataset.fx));
+$$('[data-fx]').forEach(c=>c.onchange=()=>{S.fx=c.checked?(S.fx|+c.dataset.fx):(S.fx&~+c.dataset.fx);style();save();});
+syncFx();
 $('#tid').value=S.tid; $('#tid').onchange=e=>{S.tid=e.target.value.trim();save();connect();};
 $('#cid').value=S.cid; $('#cid').onchange=e=>{S.cid=e.target.value.trim();save();connect();};
 $('#auto').checked=!S.acc; $('#acc').value=S.acc||'#53fc18';
@@ -479,16 +706,33 @@ const accSync=()=>{$('#accrow').style.opacity=$('#auto').checked?.4:1;};
 $('#auto').onchange=()=>{S.acc=$('#auto').checked?'':$('#acc').value;accSync();style();save();};
 $('#acc').oninput=()=>{$('#auto').checked=false;S.acc=$('#acc').value;accSync();style();save();};
 accSync();
+$('#as').checked=!!S.as; $('#as').onchange=()=>{S.as=$('#as').checked?1:0;style();save();};
+$('#gl').checked=!!S.gl; $('#gl').onchange=()=>{S.gl=$('#gl').checked?1:0;style();save();};
+function syncUI(){
+  $('#pos').value=S.pos; $('#sc').value=S.sc; $('#vsc').textContent=S.sc+'%';
+  $('#lk').value=S.lk; $('#vlk').textContent=S.lk+' с'; $('#rs').value=S.rs; $('#vrs').textContent=S.rs+' с'; $('#cs').value=S.cs; $('#vcs').textContent=S.cs+' с';
+  $('#th').value=S.th; $('#op').value=S.op; $('#vop').textContent=S.op+'%'; $('#rd').value=S.rd; $('#vrd').textContent=S.rd+' px'; $('#fn').value=S.fn; $('#an').value=S.an; syncFx();
+  $('#as').checked=!!S.as; $('#gl').checked=!!S.gl; $('#auto').checked=!S.acc; $('#acc').value=S.acc||'#53fc18'; accSync(); style(); save();
+}
+$('#pcode').value=presetCode();
+$('#pcode').addEventListener('change',e=>{const o=parsePreset(e.target.value); if(o){Object.assign(S,o); e.target.classList.remove('bad'); syncUI();} else e.target.classList.add('bad');});
+async function copyText(t,b,lab){
+  try{await navigator.clipboard.writeText(t);}catch(e){const i=document.createElement('input');i.value=t;document.body.appendChild(i);i.select();document.execCommand('copy');i.remove();}
+  b.textContent='Скопировано'; setTimeout(()=>b.textContent=lab,1600);
+}
+$('#pcopy').onclick=()=>copyText(presetCode(),$('#pcopy'),'Копировать');
+$('#plink').onclick=()=>copyText(location.href.split('?')[0].split('#')[0]+'?preset='+presetCode(),$('#plink'),'Копировать ссылку на пресет');
+if(Q.has('preset')) save();
 $$('.chip[data-bg]').forEach(b=>b.onclick=()=>{$$('.chip[data-bg]').forEach(x=>x.classList.toggle('on',x===b));$('#pvbox').dataset.bg=b.dataset.bg;});
 
 /* демо */
-let demoT=0;
-function stopDemo(){clearInterval(demoT);}
+let demoT=0, demoTO=0;
+function stopDemo(){clearInterval(demoT);clearTimeout(demoTO);}
 function demo(kind){
   stopDemo(); const bet=kind==='bet';
   const labels=bet?['Победим','Проиграем']:['Лес','Пещера','Город'], vals=labels.map(()=>0); let users=0;
-  const fin=()=>W.finish(maxIdx(vals));
-  W.show('demo'+Date.now(),kind,bet?'Выиграем следующий раунд?':'Куда идём дальше?',labels,Date.now()+25000,()=>{stopDemo(); if(bet){W.lock();setTimeout(fin,2500);}else fin();});
+  const fin=()=>W.reveal(maxIdx(W.o.map(o=>o.v)));
+  W.show('demo'+Date.now(),kind,bet?'Выиграем следующий раунд?':'Куда идём дальше?',labels,Date.now()+25000,()=>{stopDemo(); if(bet){W.lock();demoTO=setTimeout(fin,S.lk*1000+4000);}else fin();},bet?labels.map((_,i)=>(S.p==='twitch'?TW_ALT:KICK_ALT)[i]):null);
   demoT=setInterval(()=>{
     const i=Math.random()<.6?0:Math.floor(Math.random()*labels.length);
     vals[i]+=bet?100+Math.floor(Math.random()*1900):1+Math.floor(Math.random()*4); users++; W.set(vals,users);
@@ -496,11 +740,12 @@ function demo(kind){
 }
 $('#dPoll').onclick=()=>demo('poll'); $('#dBet').onclick=()=>demo('bet');
 $('#dEnd').onclick=()=>{stopDemo();W.close();};
+$('#dCancel').onclick=()=>{stopDemo();W.cancel();};
 
 /* ссылка для OBS */
 function buildUrl(){
-  const p=new URLSearchParams({o:1,p:S.p,c:S.c,pos:S.pos,sc:S.sc});
-  if(S.acc) p.set('acc',S.acc); if(S.cid&&S.p==='kick') p.set('cid',S.cid);
+  const p=new URLSearchParams({o:1,p:S.p,c:S.c,preset:presetCode()});
+  if(S.cid&&S.p==='kick') p.set('cid',S.cid);
   if(S.tid&&S.p==='twitch') p.set('tid',S.tid);
   return location.href.split('?')[0].split('#')[0]+'?'+p;
 }
