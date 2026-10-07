@@ -180,7 +180,7 @@ h1{font-weight:700;font-size:clamp(26px,4vw,32px);margin:0 0 10px;letter-spacing
 .wh.th-neon.ng .w.show .shell{box-shadow:var(--dsh1),0 0 0 1px rgba(var(--ar),.9)}
 .wh.th-grad .shell{background:linear-gradient(135deg,rgba(var(--ar),.34),rgba(var(--ar),.04) 70%),rgba(var(--bgc),var(--bga))}
 
-/* ---------- стили появления (раскрытие — по умолчанию) ---------- */
+/* ---------- стили появления (раскрытие - по умолчанию) ---------- */
 .wh:not(.an-expand) .shell{width:360px;transition:transform .7s cubic-bezier(.2,.9,.2,1),filter .6s,box-shadow .6s}
 .wh:not(.an-expand) .bd{grid-template-rows:1fr;transition:none}
 .wh:not(.an-expand) .w{transition:opacity .25s}
@@ -277,7 +277,7 @@ h1{font-weight:700;font-size:clamp(26px,4vw,32px);margin:0 0 10px;letter-spacing
             <div class="row"><div class="lab">Тема</div>
               <select id="th"><option value="dark">Тёмная</option><option value="light">Светлая</option><option value="glass">Стекло</option><option value="min">Минимализм</option><option value="neon">Неон</option><option value="grad">Градиент</option></select></div>
             <div class="row"><div class="lab">Шрифт</div>
-              <select id="fn"><option value="grotesk">Space Grotesk (кириллица — системным)</option><option value="inter">Inter</option><option value="montserrat">Montserrat</option><option value="rubik">Rubik</option><option value="manrope">Manrope</option><option value="unbounded">Unbounded</option><option value="exo2">Exo 2</option><option value="oswald">Oswald</option></select></div>
+              <select id="fn"><option value="grotesk">Space Grotesk (кириллица - системным)</option><option value="inter">Inter</option><option value="montserrat">Montserrat</option><option value="rubik">Rubik</option><option value="manrope">Manrope</option><option value="unbounded">Unbounded</option><option value="exo2">Exo 2</option><option value="oswald">Oswald</option></select></div>
             <div class="row"><div class="lab">Прозрачность <span class="val" id="vop"></span></div><input type="range" id="op" min="20" max="100" step="5"></div>
             <div class="row"><div class="lab">Скругление <span class="val" id="vrd"></span></div><input type="range" id="rd" min="0" max="36" step="1"></div>
             <div class="row inl"><span>Цвет платформы</span><input type="checkbox" id="auto"></div>
@@ -310,7 +310,7 @@ h1{font-weight:700;font-size:clamp(26px,4vw,32px);margin:0 0 10px;letter-spacing
         </details>
         <details class="sec"><summary>ПРЕСЕТ</summary>
           <div class="row"><div class="urlrow"><input id="pcode" aria-label="Код пресета" autocomplete="off" spellcheck="false"><button class="btn2" id="pcopy" type="button" style="font-size:13px">Копировать</button></div>
-            <p class="hint">Все настройки, кроме канала. Вставьте чужой код и нажмите Enter — настройки применятся.</p>
+            <p class="hint">Все настройки, кроме канала. Вставьте чужой код и нажмите Enter - настройки применятся.</p>
             <button class="chip" id="plink" type="button" style="align-self:flex-start">Копировать ссылку на пресет</button></div>
         </details>
         <div id="authgrp">
@@ -333,8 +333,8 @@ h1{font-weight:700;font-size:clamp(26px,4vw,32px);margin:0 0 10px;letter-spacing
       <div class="urlrow"><input id="outurl" readonly><button class="btn2" id="copy" type="button">Копировать</button></div>
       <ol class="steps">
         <li>В OBS: <code>Источники</code> → <code>+</code> → <code>Браузер</code>.</li>
-        <li>Вставьте ссылку в <code>URL</code>. Размер источника любой (например <code>1920×1080</code>) — виджет сам встанет в выбранный угол и уменьшится, если не помещается в окно.</li>
-        <li>Фон прозрачный. Изменили настройки — скопируйте ссылку заново.</li>
+        <li>Вставьте ссылку в <code>URL</code>. Размер источника любой (например <code>500×600</code>) - виджет сам встанет в выбранный угол и уменьшится, если не помещается в окно.</li>
+        <li>Фон прозрачный. Изменили настройки - скопируйте ссылку заново.</li>
       </ol>
     </div>
   </section>
@@ -380,9 +380,9 @@ const autoK=()=>OV&&S.as?Math.max(1,Math.min(innerWidth/1920,innerHeight/1080)):
 const hex2rgb=h=>[1,3,5].map(i=>parseInt(h.slice(i,i+2),16)).join(',');
 const nf=n=>Math.round(n).toLocaleString('ru-RU');
 const maxIdx=a=>a.reduce((b,v,i)=>v>a[b]?i:b,0);
-/* цвета вариантов как на Twitch: 1 — синий, 2 — розовый */
+/* цвета вариантов как на Twitch: 1 - синий, 2 - розовый */
 const TW_COL={BLUE:'#387aff',PINK:'#f5009b'}, TW_ALT=['#387aff','#f5009b','#1fc7a7','#ffb020','#9146ff','#ff6a3d','#7ed957','#00bcd4','#b9a7ff','#ff9ec7'];
-/* Kick: 1 — мятно-зелёный, 2 — розовый */
+/* Kick: 1 - мятно-зелёный, 2 - розовый */
 const KICK_ALT=['#26f2b2','#f08fa0','#6fb8ff','#ffd166','#b48cff','#ff9a5c','#7ef0c0','#ff7ab8','#9fe870','#c0c8ff'];
 const twCol=(o,i)=>TW_COL[String(o.color||'').toUpperCase()]||TW_ALT[i%TW_ALT.length];
 
@@ -393,7 +393,7 @@ class Widget{
   constructor(h){this.h=h;this.w=null;this.fin=new Map()}
   isFin(id){ const t=this.fin.get(id); if(!t) return false; if(Date.now()>t){this.fin.delete(id);return false;} return true; }
   show(id,kind,title,labels,end,onEnd,colors){
-    if(this.parked===id||this.isFin(id)) return; /* уже показали итоги — повторно с нуля не открываем */
+    if(this.parked===id||this.isFin(id)) return; /* уже показали итоги - повторно с нуля не открываем */
     if(this.w&&this.id===id&&!this.done){ if(end) this.end=end; return; }
     this.kill(); this._s=null; Object.assign(this,{id,kind,end,onEnd,title,labels,colors,done:false,locked:false,parked:null,users:null,top:null});
     this.dur=Math.max(1000,(end||0)-Date.now());
@@ -568,10 +568,10 @@ function twRaw(s){ try{ twMsg(typeof s==='string'?JSON.parse(s):s); }catch(e){ c
 async function connectTw(my){
   const id=await twId(S.c);
   if(my!==gen) return;
-  if(!id) return status('не удалось узнать ID канала — укажите его вручную в настройках','err');
+  if(!id) return status('не удалось узнать ID канала - укажите его вручную в настройках','err');
   const topics=['polls.'+id,'predictions-channel-v1.'+id]; let ok=false;
   const good=()=>{ if(!ok&&my===gen){ok=true;status('подключено: '+S.c,'ok');} };
-  setTimeout(()=>{ if(!ok&&my===gen) status('Twitch не подтвердил подписку — откройте консоль (F12)','err'); },9000);
+  setTimeout(()=>{ if(!ok&&my===gen) status('Twitch не подтвердил подписку - откройте консоль (F12)','err'); },9000);
   const rid=()=>Math.random().toString(36).slice(2,14);
   /* основной канал: Hermes (его использует сам сайт Twitch) */
   const h=add(new WebSocket('wss://hermes.twitch.tv/v1?clientId='+WEB_ID)); let sent=false;
@@ -619,7 +619,7 @@ function kickPred(d){
 async function connectKick(my){
   let id=S.cid, ch='';
   try{ const r=await fetch('https://kick.com/api/v2/channels/'+encodeURIComponent(S.c)); const j=await r.json(); id=id||j.chatroom.id; ch=j.id; }
-  catch(e){ if(!id) return my===gen&&status('нет ID чата — укажите его вручную в настройках','err'); }
+  catch(e){ if(!id) return my===gen&&status('нет ID чата - укажите его вручную в настройках','err'); }
   if(my!==gen) return;
   const ws=add(new WebSocket('wss://ws-us2.pusher.com/app/32cbd69e4b950bf97679?protocol=7&client=js&version=8.4.0&flash=false'));
   ws.onmessage=e=>{
@@ -653,7 +653,7 @@ if(OV){
 function setPlatform(p){
   S.p=p; document.body.dataset.p=p;
   $$('.tab').forEach(t=>t.classList.toggle('on',t.dataset.p===p));
-  $('#sub').innerHTML='Введите канал <b>'+(p==='kick'?'Kick':'Twitch')+'</b> — опросы и ставки, созданные стримером или модераторами, появятся на экране сами';
+  $('#sub').innerHTML='Введите канал <b>'+(p==='kick'?'Kick':'Twitch')+'</b> - опросы и ставки, созданные стримером или модераторами, появятся на экране сами';
   $('#pre').textContent=p==='kick'?'kick.com/':'twitch.tv/';
   $('#authgrp').hidden=p!=='twitch'; $('#kickgrp').hidden=p!=='kick'; style();
 }
