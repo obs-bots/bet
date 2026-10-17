@@ -42,6 +42,8 @@ body:not(.ov)::before{content:'';position:fixed;inset:0;pointer-events:none;back
 .tab{font:500 11px var(--mono);letter-spacing:.08em;background:transparent;color:#cfd2de;border:1px solid rgba(var(--r),.4);border-radius:999px;padding:7px 14px;cursor:pointer;opacity:.45;transition:.18s}
 .tab[data-p=kick]{--r:83,252,24}.tab[data-p=twitch]{--r:145,70,255}
 .tab:hover{opacity:.8}
+.tab[data-p=kick]{opacity:.35;cursor:not-allowed}.tab[data-p=kick]:hover{opacity:.5}
+.kicknote{margin:-10px 0 16px;text-align:center;font:500 12px var(--mono);color:#ff8f8f}
 .tab.on{opacity:1;background:rgba(var(--r),.16);box-shadow:0 0 0 1px rgba(var(--r),.4),0 0 16px rgba(var(--r),.2)}
 h1{font-weight:700;font-size:clamp(26px,4vw,32px);margin:0 0 10px;letter-spacing:-.02em;background:linear-gradient(180deg,#fff,#b9c3d6);-webkit-background-clip:text;background-clip:text;color:transparent}
 .sub{font-size:14px;color:#8b93a3;margin:0 0 24px;line-height:1.5}
@@ -244,9 +246,10 @@ h1{font-weight:700;font-size:clamp(26px,4vw,32px);margin:0 0 10px;letter-spacing
 <div id="app">
   <section id="s1" class="card">
     <div class="tabs" role="tablist" style="animation-delay:.15s">
-      <button role="tab" class="tab" data-p="kick" type="button">KICK</button>
+      <button role="tab" class="tab" data-p="kick" type="button" title="Kick: пока что не доступно">KICK</button>
       <button role="tab" class="tab" data-p="twitch" type="button">TWITCH</button>
     </div>
+    <p class="kicknote" id="kickNote" role="status" hidden>Kick: пока что не доступно</p>
     <h1 style="animation-delay:.3s">Опросы и ставки для OBS</h1>
     <p class="sub" id="sub" style="animation-delay:.4s"></p>
     <div class="cmds" style="animation-delay:.5s">
@@ -573,7 +576,7 @@ function lg(k,v){ if(RAW.size>24&&!RAW.has(k)) RAW.delete(RAW.keys().next().valu
 window.addEventListener('error',e=>lg('js-err','JS: '+(e.message||e.type)+' @ '+String(e.filename||'').split('/').pop()+':'+e.lineno));
 window.addEventListener('unhandledrejection',e=>lg('js-rej','Promise: '+((e.reason&&e.reason.message)||e.reason)));
 function disconnect(){gen++; socks.forEach(s=>{try{s.close()}catch(e){}}); socks=[];}
-function connect(){ disconnect(); const my=gen; status('подключение…'); (S.p==='twitch'?connectTw:connectKick)(my); }
+function connect(){ disconnect(); const my=gen; if(S.p==='kick'){ status('Kick: пока что не доступно','err'); return; } status('подключение…'); (S.p==='twitch'?connectTw:connectKick)(my); }
 function retryLater(my){ if(my===gen){status('переподключение…','err'); setTimeout(()=>my===gen&&connect(),4000);} }
 
 /* ---------- Twitch: публичные события канала, вход не нужен ---------- */
@@ -723,9 +726,12 @@ function setPlatform(p){
   $('#pre').textContent=p==='kick'?'kick.com/':'twitch.tv/';
   $('#authgrp').hidden=p!=='twitch'; $('#kickgrp').hidden=p!=='kick'; style();
 }
-$$('.tab').forEach(t=>t.onclick=()=>{setPlatform(t.dataset.p);save();});
+let kickNoteT=0;
+function kickNote(){ const n=$('#kickNote'); n.hidden=false; clearTimeout(kickNoteT); kickNoteT=setTimeout(()=>{n.hidden=true;},4000); }
+$$('.tab').forEach(t=>t.onclick=()=>{ if(t.dataset.p==='kick'){ kickNote(); return; } setPlatform(t.dataset.p); save(); });
 const clean=v=>v.trim().replace(/^https?:\/\//i,'').replace(/^(www\.)?(kick\.com|twitch\.tv)\//i,'').split(/[/?#]/)[0].replace(/^@/,'');
 function go(){
+  if(/kick\.com\//i.test($('#ch').value)){ kickNote(); return; }
   const v=clean($('#ch').value), i=$('#ch');
   if(!v){i.classList.add('bad');i.focus();return;}
   S.c=v; save(); $('#s1').hidden=true; $('#s2').hidden=false; $('#fx').style.display='none';
@@ -736,7 +742,7 @@ $('#go').onclick=go; $('#ch').value=S.c||'';
 $('#ch').addEventListener('input',e=>e.target.classList.remove('bad'));
 $('#ch').addEventListener('keydown',e=>{if(e.key==='Enter')go();});
 $('#back').onclick=()=>{disconnect();stopDemo();W.kill();status('не подключено');$('#s2').hidden=true;$('#s1').hidden=false;$('#fx').style.display='';};
-setPlatform(S.p==='twitch'?'twitch':'kick');
+setPlatform('twitch');
 
 /* заставка: пузырьки сообщений поднимаются вверх */
 (()=>{
