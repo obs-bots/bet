@@ -377,6 +377,7 @@ try{ if(!OV) Object.assign(S,JSON.parse(localStorage.getItem('pbw')||'{}')); }ca
 const FETCH_MS=6000;
 const toSig=()=>(window.AbortSignal&&AbortSignal.timeout)?AbortSignal.timeout(FETCH_MS):undefined;
 const F=(u,o)=>window.fetch(u,o?{...o,signal:toSig()}:{signal:toSig()});
+const RELAY='https://kick-raffle-relay.obsbots77.workers.dev';
 const EP={pusher:'wss://ws-us2.pusher.com/app/32cbd69e4b950bf97679?protocol=7&client=js&version=8.4.0&flash=false',twGqlId:'kimne78kx3ncx6brgo4mv6wki5h1ko',kickApi:s=>'https://kick.com/api/v2/channels/'+encodeURIComponent(s),kickCors:['https://corsproxy.io/?','https://api.allorigins.win/raw?url=']};
 const DEBUG=()=>Q.has('debug')||location.hash==='#debug';
 const dbg=(...a)=>{if(DEBUG())console.log('[bet]',...a);};
@@ -671,9 +672,9 @@ function kickPred(d){
   if(/cancel/.test(st)) W.finish(null,'Отмена ставки');
 }
 async function kickChannel(slug,proxy){
-  const url=EP.kickApi(slug);
-  const tries=proxy?[proxy+encodeURIComponent(url)]:[url,...EP.kickCors.map(p=>p+encodeURIComponent(url))];
-  for(const u of tries){ try{ const r=await F(u); if(!r.ok) continue; const j=await r.json(); if(j&&j.chatroom&&+j.chatroom.id>0) return j; }catch(e){} }
+  // ID чата и канала ищет ваш Worker (best-effort: он обращается к kick.com/api/v2)
+  try{ const r=await F(RELAY+'/api/lookup?slug='+encodeURIComponent(slug),{method:'POST'}); if(!r.ok) return null;
+    const j=await r.json(); if(j&&+j.chatroom_id>0) return {chatroom:{id:+j.chatroom_id}, id:j.channel_id||''}; }catch(e){}
   return null;
 }
 async function connectKick(my){
