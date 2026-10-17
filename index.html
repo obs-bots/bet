@@ -673,7 +673,7 @@ function kickPred(d){
 }
 async function kickChannel(slug,proxy){
   // ID чата и канала ищет ваш Worker (best-effort: он обращается к kick.com/api/v2)
-  try{ const r=await F(RELAY+'/api/lookup?slug='+encodeURIComponent(slug),{method:'POST'}); if(!r.ok) return null;
+  try{ const r=await window.fetch(RELAY+'/api/lookup?slug='+encodeURIComponent(slug),{method:'POST',signal:(window.AbortSignal&&AbortSignal.timeout)?AbortSignal.timeout(15000):undefined}); if(!r.ok) return null;
     const j=await r.json(); if(j&&+j.chatroom_id>0) return {chatroom:{id:+j.chatroom_id}, id:j.channel_id||''}; }catch(e){}
   return null;
 }
