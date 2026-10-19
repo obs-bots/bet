@@ -184,6 +184,8 @@ h1{font-weight:700;font-size:clamp(26px,4vw,32px);margin:0 0 10px;letter-spacing
 .wh{--bgc:17,20,28;--bga:1;--fg:#e8ebf3;--mu:#9aa1b3;--mu2:#8f95a9;--fg2:#d6d9e4;--rw:rgba(255,255,255,.05);--bdc:rgba(255,255,255,.1);--ixb:rgba(0,0,0,.35);--ixc:#cfd2de;--trk:rgba(255,255,255,.06);--dnd:#fff;--dsh1:0 14px 40px rgba(0,0,0,.5);--dsh2:0 18px 50px rgba(0,0,0,.55);--rd:22px;--wf:'Space Grotesk',system-ui,sans-serif}
 .wh.th-grad .shell{background:linear-gradient(135deg,rgba(var(--ar),.4),rgba(var(--ar2,var(--ar)),.4)),rgba(var(--bgc),var(--bga))}
 .wh.th-light{--bgc:250,251,254;--fg:#151824;--mu:#5c6377;--mu2:#5c6377;--fg2:#151824;--rw:rgba(20,26,50,.07);--bdc:rgba(20,26,50,.14);--ixb:rgba(20,26,50,.1);--ixc:#2c3247;--trk:rgba(20,26,50,.09);--dnd:#151824;--dsh1:0 14px 40px rgba(20,30,60,.28);--dsh2:0 18px 50px rgba(20,30,60,.32)}
+/* без тени под виджетом */
+.wh.nsd{--dsh1:0 0 0 0 transparent;--dsh2:0 0 0 0 transparent}
 
 /* ---------- стили появления (раскрытие - по умолчанию) ---------- */
 .wh:not(.an-expand) .shell{width:360px;transition:transform .7s cubic-bezier(.2,.9,.2,1),filter .6s,box-shadow .6s}
@@ -312,6 +314,7 @@ h1{font-weight:700;font-size:clamp(26px,4vw,32px);margin:0 0 10px;letter-spacing
           </div>
           <div class="tgs">
             <label class="tg" title="Нужен только для источников больше 1920×1080: в 4K виджет станет вдвое крупнее. Ползунок «Размер» работает поверх этого. В предпросмотре не применяется."><input type="checkbox" id="as"><span>Автомасштаб 4K</span></label>
+            <label class="tg"><input type="checkbox" id="sd"><span>Тень</span></label>
             <label class="tg"><input type="checkbox" id="gl"><span>Внешнее свечение</span></label>
             <label class="tg"><input type="checkbox" data-fx="1"><span>Конфетти</span></label>
             <label class="tg"><input type="checkbox" data-fx="2"><span>Блик</span></label>
@@ -372,7 +375,7 @@ h1{font-weight:700;font-size:clamp(26px,4vw,32px);margin:0 0 10px;letter-spacing
 (()=>{
 'use strict';
 const $=s=>document.querySelector(s), $$=s=>document.querySelectorAll(s);
-const D={p:'kick',c:'',pos:'bl',sc:100,acc:'',cid:'',tid:'',px:'',lk:10,rs:12,as:0,gl:1,cs:12,th:'dark',op:100,rd:22,fn:'grotesk',an:'expand',fx:63,acc2:'#4f8bff',cf:1,sm:1};
+const D={p:'kick',c:'',pos:'bl',sc:100,acc:'',cid:'',tid:'',px:'',lk:10,rs:12,as:0,gl:1,cs:12,th:'dark',op:100,rd:22,fn:'grotesk',an:'expand',fx:63,acc2:'#4f8bff',cf:1,sm:1,sh:1};
 let S={...D};
 const Q=new URLSearchParams(location.search), OV=Q.get('o')==='1';
 try{ if(!OV) Object.assign(S,JSON.parse(localStorage.getItem('pbw')||'{}')); }catch(e){}
@@ -405,14 +408,15 @@ function parsePreset(str){
   if(FT[+a[11]]) o.fn=FT[+a[11]].k; if(AN[+a[12]]) o.an=AN[+a[12]]; if(a[13]!==undefined) o.fx=clamp(a[13],0,63,63)|0;
   if(a[14]!==undefined&&/^[0-9a-f]{6}$/i.test(a[14])) o.acc2='#'+a[14].toLowerCase();
   if(a[15]!==undefined) o.cf=a[15]==='1'?1:0;
-  if(a[16]!==undefined) o.sm=a[16]==='1'?1:0; return o;
+  if(a[16]!==undefined) o.sm=a[16]==='1'?1:0;
+  if(a[17]!==undefined) o.sh=a[17]==='1'?1:0; return o;
 }
-function presetCode(){ return [S.pos,S.sc,S.acc?S.acc.slice(1):'0',S.lk,S.rs,S.as?1:0,S.gl?1:0,S.cs,Math.max(0,TH.indexOf(S.th)),S.op,S.rd,fontIdx(S.fn),Math.max(0,AN.indexOf(S.an)),S.fx,(S.acc2||'#4f8bff').slice(1),S.cf?1:0,S.sm?1:0].join('-'); }
+function presetCode(){ return [S.pos,S.sc,S.acc?S.acc.slice(1):'0',S.lk,S.rs,S.as?1:0,S.gl?1:0,S.cs,Math.max(0,TH.indexOf(S.th)),S.op,S.rd,fontIdx(S.fn),Math.max(0,AN.indexOf(S.an)),S.fx,(S.acc2||'#4f8bff').slice(1),S.cf?1:0,S.sm?1:0,S.sh?1:0].join('-'); }
 if(Q.has('preset')) Object.assign(S,parsePreset(Q.get('preset'))||{});
 for(const k in D) if(Q.has(k)) S[k]=typeof D[k]==='number'?+Q.get(k):Q.get(k);
 S.lk=clamp(S.lk,3,60,10); S.rs=clamp(S.rs,3,60,12); S.cs=clamp(S.cs,3,60,12);
 if(!TH.includes(S.th)) S.th='dark'; if(!/^#[0-9a-f]{6}$/i.test(S.acc2||'')) S.acc2=D.acc2; if(!AN.includes(S.an)) S.an='expand'; if(!FT.some(f=>f.k===S.fn)) S.fn='grotesk';
-S.op=clamp(S.op,20,100,100); S.rd=clamp(S.rd,0,36,22); S.fx=clamp(S.fx,0,63,63)|0; S.sc=clamp(S.sc,30,400,100); S.as=+S.as?1:0; S.cf=+S.cf?1:0; S.sm=+S.sm?1:0; S.gl=+S.gl?1:0; S.px=String(S.px||'').trim().slice(0,200);
+S.op=clamp(S.op,20,100,100); S.rd=clamp(S.rd,0,36,22); S.fx=clamp(S.fx,0,63,63)|0; S.sc=clamp(S.sc,30,400,100); S.as=+S.as?1:0; S.cf=+S.cf?1:0; S.sm=+S.sm?1:0; S.gl=+S.gl?1:0; S.sh=+S.sh===0?0:1; S.px=String(S.px||'').trim().slice(0,200);
 let saveT=0;
 const save=()=>{clearTimeout(saveT);saveT=setTimeout(()=>{try{localStorage.setItem('pbw',JSON.stringify(S))}catch(e){} const pc=document.querySelector('#pcode'); if(pc&&document.activeElement!==pc) pc.value=presetCode();},250);};
 /* автомасштаб: за основу 1920×1080, работает только в OBS */
@@ -559,7 +563,7 @@ class Widget{
 const wh=$('#wh'), W=new Widget(wh);
 function style(){
   W._cs=null;
-  wh.className='wh '+S.pos+(S.gl?'':' ng')+' th-'+S.th+' an-'+S.an+(S.fx&2?'':' nsh')+(S.fx&4?'':' npu')+(S.fx&16?'':' nmv')+(S.cf?'':' ncf')+(S.sm?'':' nsm')+(OV?' fx':'');
+  wh.className='wh '+S.pos+(S.gl?'':' ng')+(S.sh?'':' nsd')+' th-'+S.th+' an-'+S.an+(S.fx&2?'':' nsh')+(S.fx&4?'':' npu')+(S.fx&16?'':' nmv')+(S.cf?'':' ncf')+(S.sm?'':' nsm')+(OV?' fx':'');
   wh.style.setProperty('--bga',+(TB[S.th]*S.op/100).toFixed(3)); wh.style.setProperty('--rd',S.rd+'px'); wh.style.setProperty('--wf',loadFont());
   const c=S.acc||(S.p==='twitch'?'#9146ff':'#53fc18');
   wh.style.setProperty('--ac',c); wh.style.setProperty('--ar',hex2rgb(c)); wh.style.setProperty('--ar2',hex2rgb(S.acc2||D.acc2)); const r2=document.getElementById('acc2row'); if(r2) r2.hidden=S.th!=='grad'; wh.style.padding=(OV?Math.max(4,Math.round(Math.min(22*autoK(),Math.min(innerWidth,innerHeight)*.05))):22)+'px'; W.apply();
@@ -606,10 +610,14 @@ function twMsg(m){
     const labels=ch.map(c=>c.title), vals=ch.map(twVotes), st=String(p.status||'').toUpperCase();
     const id='tp:'+(p.poll_id||p.id||p.title), end=(Date.parse(p.started_at)||Date.now())+(p.duration_seconds||0)*1000;
     dbg('poll',st,vals); lg('tw-poll','Twitch опрос: '+st+' ['+vals+']');
-    if(st==='ARCHIVED') return;
+    if(st==='ARCHIVED'){ if(W.id===id&&W.w&&!W.done){ W.set(vals); W.finish(maxIdx(vals)); } return; }
     if(st==='MODERATED') return W.close();
     if(st==='COMPLETED'||st==='TERMINATED'){ W.show(id,'poll',p.title,labels,0); W.set(vals); W.finish(maxIdx(vals)); }
-    else{ W.show(id,'poll',p.title,labels,end); W.set(vals); }
+    else{
+      /* если Twitch не прислал итог (или часы сдвинуты) - через 4 с после 0:00 завершаем сами */
+      const selfEnd=()=>setTimeout(()=>{ if(W.id===id&&W.w&&!W.done) W.finish(maxIdx(W.o.map(o=>o.v))); },4000);
+      W.show(id,'poll',p.title,labels,end,selfEnd); W.set(vals);
+    }
   }else if(d.event&&d.event.outcomes){
     const e=d.event, outs=e.outcomes, labels=outs.map(o=>o.title), vals=outs.map(o=>+o.total_points||0), us=outs.reduce((a,o)=>a+(+o.total_users||0),0);
     const st=String(e.status||'').toUpperCase(), id='tb:'+e.id, end=(Date.parse(e.created_at)||Date.now())+(e.prediction_window_seconds||0)*1000;
@@ -782,13 +790,14 @@ accSync();
 $('#acc2').value=S.acc2; $('#acc2').oninput=()=>{S.acc2=$('#acc2').value;style();save();};
 $('#as').checked=!!S.as; $('#as').onchange=()=>{S.as=$('#as').checked?1:0;style();save();};
 $('#gl').checked=!!S.gl; $('#gl').onchange=()=>{S.gl=$('#gl').checked?1:0;style();save();};
+$('#sd').checked=!!S.sh; $('#sd').onchange=()=>{S.sh=$('#sd').checked?1:0;style();save();};
 $('#cf').checked=!!S.cf; $('#cf').onchange=()=>{S.cf=$('#cf').checked?1:0;style();save();};
 $('#sm').checked=!!S.sm; $('#sm').onchange=()=>{S.sm=$('#sm').checked?1:0;style();save();};
 function syncUI(){
   $('#pos').value=S.pos; $('#sc').value=S.sc; $('#vsc').textContent=S.sc+'%';
   $('#lk').value=S.lk; $('#vlk').textContent=S.lk+' с'; $('#rs').value=S.rs; $('#vrs').textContent=S.rs+' с'; $('#cs').value=S.cs; $('#vcs').textContent=S.cs+' с';
   $('#th').value=S.th; $('#op').value=S.op; $('#vop').textContent=S.op+'%'; $('#rd').value=S.rd; $('#vrd').textContent=S.rd+' px'; $('#fn').value=S.fn; $('#an').value=S.an; syncFx();
-  $('#as').checked=!!S.as; $('#gl').checked=!!S.gl; $('#cf').checked=!!S.cf; $('#sm').checked=!!S.sm; $('#auto').checked=!S.acc; $('#acc').value=S.acc||'#53fc18'; $('#acc2').value=S.acc2; accSync(); style(); save();
+  $('#as').checked=!!S.as; $('#gl').checked=!!S.gl; $('#sd').checked=!!S.sh; $('#cf').checked=!!S.cf; $('#sm').checked=!!S.sm; $('#auto').checked=!S.acc; $('#acc').value=S.acc||'#53fc18'; $('#acc2').value=S.acc2; accSync(); style(); save();
 }
 $('#pcode').value=presetCode();
 $('#pcode').addEventListener('change',e=>{const o=parsePreset(e.target.value); if(o){Object.assign(S,o); e.target.classList.remove('bad'); syncUI();} else e.target.classList.add('bad');});
