@@ -305,6 +305,13 @@ h1{font-weight:700;font-size:clamp(26px,4vw,32px);margin:0 0 10px;letter-spacing
           </div>
           <p class="hint">Размер до 300%: в OBS виджет сам уменьшится, только если не помещается в окно источника (в предпросмотре он ограничен рамкой).</p>
         </details>
+        <details class="sec" open><summary>ЧТО ПОКАЗЫВАТЬ</summary>
+          <div class="pvbar" style="margin:0 0 6px;flex-wrap:wrap;gap:8px">
+            <button class="chip on" id="shPoll" type="button" aria-pressed="true">Опросы</button>
+            <button class="chip on" id="shBet" type="button" aria-pressed="true">Ставки</button>
+          </div>
+          <p class="hint">Выключенный тип не появляется на экране в OBS. Кнопки «Показать опрос» и «Показать ставку» для проверки работают всегда.</p>
+        </details>
         <details class="sec" open><summary>АНИМАЦИЯ И ЭФФЕКТЫ</summary>
           <div class="g2">
             <div class="row"><div class="lab">Стиль появления</div>
@@ -373,7 +380,7 @@ h1{font-weight:700;font-size:clamp(26px,4vw,32px);margin:0 0 10px;letter-spacing
 (()=>{
 'use strict';
 const $=s=>document.querySelector(s), $$=s=>document.querySelectorAll(s);
-const D={p:'kick',c:'',pos:'bl',sc:100,acc:'',cid:'',tid:'',px:'',lk:10,rs:12,as:0,gl:1,cs:12,th:'dark',op:100,rd:22,fn:'grotesk',an:'expand',fx:63,acc2:'#4f8bff',cf:1,sm:1,sh:1};
+const D={p:'kick',c:'',pos:'bl',sc:100,acc:'',cid:'',tid:'',px:'',lk:10,rs:12,as:0,gl:1,cs:12,th:'dark',op:100,rd:22,fn:'grotesk',an:'expand',fx:63,acc2:'#4f8bff',cf:1,sm:1,sh:1,sp:1,sb:1};
 let S={...D};
 const Q=new URLSearchParams(location.search), OV=Q.get('o')==='1';
 try{ if(!OV) Object.assign(S,JSON.parse(localStorage.getItem('pbw')||'{}')); }catch(e){}
@@ -406,14 +413,16 @@ function parsePreset(str){
   if(a[14]!==undefined&&/^[0-9a-f]{6}$/i.test(a[14])) o.acc2='#'+a[14].toLowerCase();
   if(a[15]!==undefined) o.cf=a[15]==='1'?1:0;
   if(a[16]!==undefined) o.sm=a[16]==='1'?1:0;
-  if(a[17]!==undefined) o.sh=a[17]==='1'?1:0; return o;
+  if(a[17]!==undefined) o.sh=a[17]==='1'?1:0;
+  if(a[18]!==undefined) o.sp=a[18]==='1'?1:0;
+  if(a[19]!==undefined) o.sb=a[19]==='1'?1:0; return o;
 }
-function presetCode(){ return [S.pos,S.sc,S.acc?S.acc.slice(1):'0',S.lk,S.rs,S.as?1:0,S.gl?1:0,S.cs,Math.max(0,TH.indexOf(S.th)),S.op,S.rd,fontIdx(S.fn),Math.max(0,AN.indexOf(S.an)),S.fx,(S.acc2||'#4f8bff').slice(1),S.cf?1:0,S.sm?1:0,S.sh?1:0].join('-'); }
+function presetCode(){ return [S.pos,S.sc,S.acc?S.acc.slice(1):'0',S.lk,S.rs,S.as?1:0,S.gl?1:0,S.cs,Math.max(0,TH.indexOf(S.th)),S.op,S.rd,fontIdx(S.fn),Math.max(0,AN.indexOf(S.an)),S.fx,(S.acc2||'#4f8bff').slice(1),S.cf?1:0,S.sm?1:0,S.sh?1:0,S.sp?1:0,S.sb?1:0].join('-'); }
 if(Q.has('preset')) Object.assign(S,parsePreset(Q.get('preset'))||{});
 for(const k in D) if(Q.has(k)) S[k]=typeof D[k]==='number'?+Q.get(k):Q.get(k);
 S.lk=clamp(S.lk,3,60,10); S.rs=clamp(S.rs,3,60,12); S.cs=clamp(S.cs,3,60,12);
 if(!TH.includes(S.th)) S.th='dark'; if(!/^#[0-9a-f]{6}$/i.test(S.acc2||'')) S.acc2=D.acc2; if(!AN.includes(S.an)) S.an='expand'; if(!FT.some(f=>f.k===S.fn)) S.fn='grotesk';
-S.op=clamp(S.op,20,100,100); S.rd=clamp(S.rd,0,36,22); S.fx=clamp(S.fx,0,63,63)|0; S.sc=clamp(S.sc,30,400,100); S.as=+S.as?1:0; S.cf=+S.cf?1:0; S.sm=+S.sm?1:0; S.gl=+S.gl?1:0; S.sh=+S.sh===0?0:1; S.px=String(S.px||'').trim().slice(0,200);
+S.op=clamp(S.op,20,100,100); S.rd=clamp(S.rd,0,36,22); S.fx=clamp(S.fx,0,63,63)|0; S.sc=clamp(S.sc,30,400,100); S.as=+S.as?1:0; S.cf=+S.cf?1:0; S.sm=+S.sm?1:0; S.gl=+S.gl?1:0; S.sh=+S.sh===0?0:1; S.sp=+S.sp===0?0:1; S.sb=+S.sb===0?0:1; S.px=String(S.px||'').trim().slice(0,200);
 let saveT=0;
 const save=()=>{clearTimeout(saveT);saveT=setTimeout(()=>{try{localStorage.setItem('pbw',JSON.stringify(S))}catch(e){} const pc=document.querySelector('#pcode'); if(pc&&document.activeElement!==pc) pc.value=presetCode();},250);};
 /* автомасштаб: за основу 1920×1080, работает только в OBS */
@@ -603,6 +612,7 @@ async function twId(login){
 function twMsg(m){
   const d=m.data||{};
   if(d.poll){
+    if(!S.sp) return;
     const p=d.poll, ch=p.choices||[]; if(!ch.length) return;
     const labels=ch.map(c=>c.title), vals=ch.map(twVotes), st=String(p.status||'').toUpperCase();
     const id='tp:'+(p.poll_id||p.id||p.title), end=(Date.parse(p.started_at)||Date.now())+(p.duration_seconds||0)*1000;
@@ -616,6 +626,7 @@ function twMsg(m){
       W.show(id,'poll',p.title,labels,end,selfEnd); W.set(vals);
     }
   }else if(d.event&&d.event.outcomes){
+    if(!S.sb) return;
     const e=d.event, outs=e.outcomes, labels=outs.map(o=>o.title), vals=outs.map(o=>+o.total_points||0), us=outs.reduce((a,o)=>a+(+o.total_users||0),0);
     const st=String(e.status||'').toUpperCase(), id='tb:'+e.id, end=(Date.parse(e.created_at)||Date.now())+(e.prediction_window_seconds||0)*1000;
     const cols=outs.map(twCol);
@@ -661,12 +672,14 @@ async function connectTw(my){
 
 /* ---------- Kick: события через Pusher ---------- */
 function kickPoll(d){
+  if(!S.sp) return;
   const p=d.poll||d, opts=p.options||[]; if(!opts.length) return;
   const labels=opts.map(o=>o.label||o.title||''), vals=opts.map(o=>o.votes||0), rem=+p.remaining||0;
   W.show('kp:'+p.title+'|'+labels.join('|'),'poll',p.title||'Опрос',labels,Date.now()+rem*1000,()=>W.finish(maxIdx(W.o.map(o=>o.v))));
   W.set(vals);
 }
 function kickPred(d){
+  if(!S.sb) return;
   const p=d.prediction||d, outs=p.outcomes||p.options||[]; if(!outs.length) return;
   dbg('prediction',d);
   const labels=outs.map(o=>o.title||o.label||o.name||''), vals=outs.map(o=>+(o.total_vote_amount??o.vote_amount??o.total_amount??o.amount??o.votes??0));
@@ -752,7 +765,7 @@ async function connectKick(my){
         const data=typeof d.data==='string'?JSON.parse(d.data):d.data;
         lg('kick-ev','Kick: '+ev.replace('App\\Events\\',''));
         if(/PollUpdateEvent$/.test(ev)) kickPoll(data);
-        else if(/PollDeleteEvent$/.test(ev)) W.close();
+        else if(/PollDeleteEvent$/.test(ev)){ if(S.sp) W.close(); }
         else if(/Prediction(Created|Updated)$/.test(ev)) kickPred(data);
         else if(/Prediction.*(Delete|Cancel)/i.test(ev)) W.cancel();
       }catch(x){ lg('kick-err','Kick: ошибка разбора события'); }
@@ -834,7 +847,18 @@ $('#gl').checked=!!S.gl; $('#gl').onchange=()=>{S.gl=$('#gl').checked?1:0;style(
 $('#sd').checked=!!S.sh; $('#sd').onchange=()=>{S.sh=$('#sd').checked?1:0;style();save();};
 $('#cf').checked=!!S.cf; $('#cf').onchange=()=>{S.cf=$('#cf').checked?1:0;style();save();};
 $('#sm').checked=!!S.sm; $('#sm').onchange=()=>{S.sm=$('#sm').checked?1:0;style();save();};
+function syncShow(){
+  [['#shPoll','sp','poll'],['#shBet','sb','bet']].forEach(([id,k])=>{const b=$(id); b.classList.toggle('on',!!S[k]); b.setAttribute('aria-pressed',!!S[k]);});
+}
+[['#shPoll','sp','poll'],['#shBet','sb','bet']].forEach(([id,k,kind])=>{
+  $(id).onclick=()=>{
+    S[k]=S[k]?0:1; syncShow(); save();
+    if(!S[k]&&W.w&&W.kind===kind&&!String(W.id).startsWith('demo')){stopDemo();W.close();}
+  };
+});
+syncShow();
 function syncUI(){
+  syncShow();
   $('#pos').value=S.pos; $('#sc').value=S.sc; $('#vsc').textContent=S.sc+'%';
   $('#lk').value=S.lk; $('#vlk').textContent=S.lk+' с'; $('#rs').value=S.rs; $('#vrs').textContent=S.rs+' с'; $('#cs').value=S.cs; $('#vcs').textContent=S.cs+' с';
   $('#th').value=S.th; $('#op').value=S.op; $('#vop').textContent=S.op+'%'; $('#rd').value=S.rd; $('#vrd').textContent=S.rd+' px'; $('#fn').value=S.fn; $('#an').value=S.an; syncFx();
