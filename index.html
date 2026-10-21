@@ -122,11 +122,11 @@ h1{font-weight:700;font-size:clamp(26px,4vw,32px);margin:0 0 10px;letter-spacing
 .bd{display:grid;grid-template-rows:1fr}
 .in{min-height:0;overflow:hidden;padding:0 14px}
 .w.open .in{padding-bottom:0}
-.q{margin:2px 2px 12px;font-weight:600;font-size:18px;line-height:1.25;overflow-wrap:anywhere;opacity:0;transform:translateY(6px);transition:.5s .35s}
-.w.open .q{opacity:1;transform:none}
+.q{margin:2px 2px 12px;font-weight:600;font-size:18px;line-height:1.25;overflow-wrap:anywhere;opacity:0;transform:translateY(6px);transition:opacity .25s,transform .25s}
+.w.open .q{opacity:1;transform:none;transition:opacity .5s .2s,transform .5s .2s}
 .os{position:relative;height:calc(var(--n,1)*46px + (var(--n,1) - 1)*7px)}
 .o{--oc:var(--ac);--or:var(--ar);--oi:var(--ink);position:absolute;left:0;right:0;top:calc(var(--r,0)*53px);display:flex;align-items:center;gap:10px;height:46px;padding:0 12px;border-radius:calc(var(--rd)*.6);background:var(--rw);overflow:hidden;opacity:0;transform:translateY(10px);transition:opacity .5s,transform .5s cubic-bezier(.2,.9,.3,1.2),box-shadow .4s,background .4s,top .8s cubic-bezier(.3,1.15,.4,1);transition-delay:0s}
-.w.open .o{opacity:1;transform:none;transition-delay:calc(.3s + var(--i)*.08s),calc(.3s + var(--i)*.08s),0s,0s,0s}
+.w.open .o{opacity:1;transform:none;transition-delay:calc(.2s + var(--i)*.07s),calc(.2s + var(--i)*.07s),0s,0s,0s}
 .w.fresh .o{transition-property:opacity,transform,box-shadow,background}
 .fl{position:absolute;inset:0;transform-origin:left;transform:scaleX(var(--p,0));background:linear-gradient(90deg,rgba(var(--or),.5),rgba(var(--or),.22));border-right:2px solid rgba(var(--or),.9);transition:transform .35s linear}
 .o>*:not(.fl){position:relative}
@@ -160,8 +160,8 @@ h1{font-weight:700;font-size:clamp(26px,4vw,32px);margin:0 0 10px;letter-spacing
 .cfx i{position:absolute;width:var(--sz);height:calc(var(--sz)*.5);border-radius:2px;background:var(--cc);opacity:0;animation:cf 1.8s cubic-bezier(.2,.7,.3,1) var(--dl) forwards}
 @keyframes cf{0%{transform:translate(0,0) rotate(0) scale(.4);opacity:1}55%{transform:translate(var(--dx),var(--dy)) rotate(var(--a1)) scale(1);opacity:1}100%{transform:translate(calc(var(--dx)*1.15),calc(var(--dy) + 90px)) rotate(var(--a2)) scale(.9);opacity:0}}
 .o.win .ix{background:var(--oc);color:var(--oi)}
-.ft{display:flex;justify-content:space-between;gap:10px;padding:11px 3px 12px;font:12px var(--mono);color:var(--mu2);opacity:0;transition:opacity .5s .7s}
-.w.open .ft{opacity:1}
+.ft{display:flex;justify-content:space-between;gap:10px;padding:11px 3px 12px;font:12px var(--mono);color:var(--mu2);opacity:0;transition:opacity .2s}
+.w.open .ft{opacity:1;transition:opacity .5s .45s}
 .ft b{color:var(--fg2);font-weight:500}
 .tb{height:3px;margin:0 -14px;background:var(--trk)}
 .tb i{display:block;height:100%;background:var(--ac);transform-origin:left;transform:scaleX(var(--t,1));box-shadow:0 0 10px var(--ac)}
@@ -187,11 +187,13 @@ h1{font-weight:700;font-size:clamp(26px,4vw,32px);margin:0 0 10px;letter-spacing
 
 /* ---------- стили появления (раскрытие - по умолчанию) ---------- */
 .wh:not(.an-expand) .shell{transition:transform .7s cubic-bezier(.2,.9,.2,1),filter .6s}
-/* раскрытие: шапка-«таблетка» в углу вырастает в карточку; анимируются только clip-path и transform (без layout) */
-.wh.an-expand.bl .shell,.wh.an-expand.tl .shell{transform-origin:0 0}.wh.an-expand.br .shell,.wh.an-expand.tr .shell{transform-origin:100% 0}.wh.an-expand.cc .shell{transform-origin:50% 0}
-.wh.an-expand .shell{transform:translate(var(--dx,0px),var(--dy,0px)) scale(.92);clip-path:inset(0 calc(100% - var(--pw,128px)) calc(100% - var(--hh,42px)) 0 round var(--rd));transition:clip-path .8s cubic-bezier(.22,.9,.24,1),transform .8s cubic-bezier(.22,.9,.24,1)}
-.wh.an-expand .w.show .shell{transform:translate(var(--dx,0px),var(--dy,0px)) scale(1)}
-.wh.an-expand .w.open .shell{transform:none;clip-path:inset(-80px round var(--rd))}
+/* раскрытие: карточка вырастает из угла, к которому привязан виджет, затем по очереди появляются вопрос, варианты и подвал.
+   Анимируются только transform и opacity - это идёт на GPU без перерисовки и пересчёта разметки (clip-path так не умеет) */
+.wh.an-expand .shell{--ty:14px;transform-origin:50% 100%;transform:translateY(var(--ty)) scale(.72);transition:transform .6s cubic-bezier(.2,.9,.25,1.12)}
+.wh.an-expand.bl .shell{transform-origin:0 100%}.wh.an-expand.br .shell{transform-origin:100% 100%}
+.wh.an-expand.tl .shell{transform-origin:0 0;--ty:-14px}.wh.an-expand.tr .shell{transform-origin:100% 0;--ty:-14px}
+.wh.an-expand.cc .shell{transform-origin:50% 50%;--ty:0px}
+.wh.an-expand .w.show .shell{transform:none}
 .wh:not(.an-expand) .w{transition:opacity .25s}
 .wh:not(.an-expand) .w:not(.show){transition:opacity .3s .4s}
 .wh.an-fade .shell{transform:none}
@@ -467,7 +469,7 @@ class Widget{
     this.h.appendChild(w); this.w=w; this.apply();
     w.classList.add('fresh','anim'); this.intro=true;
     requestAnimationFrame(()=>requestAnimationFrame(()=>w.classList.add('show')));
-    this.t1=setTimeout(()=>{this.intro=false; w.classList.add('open');},S.an==='expand'?320:140);
+    this.t1=setTimeout(()=>{this.intro=false; w.classList.add('open');},S.an==='expand'?160:140);
     this.tf=setTimeout(()=>w.classList.remove('fresh','anim'),1600);
     this.ti=setInterval(()=>this.tick(),200); this.tick(); this.set([]); this.loop();
     return true;
@@ -478,14 +480,10 @@ class Widget{
     const base=S.sc/100*autoK();
     if(!this._cs){ const cs=getComputedStyle(h); this._cs=cs; this._pl=parseFloat(cs.paddingLeft)||0; this._pt=parseFloat(cs.paddingTop)||0; }
     const aw=h.clientWidth-2*this._pl, ah=h.clientHeight-2*this._pt;
-    const sh=w.firstChild, hd=w.querySelector('.hd');
+    const sh=w.firstChild;
     const nw=W_SHELL_W, nh=sh.offsetHeight;
     let k=1; if(aw>0&&ah>0) k=Math.min(1,aw/(nw*base),ah/(nh*base));
     const v=+(base*k).toFixed(4); if(this._s!==v){this._s=v; w.style.setProperty('--s',v);}
-    /* стартовые смещения раскрытия: шапка начинает в углу, дальше всё едет через transform */
-    const hh=(hd?hd.offsetHeight:40)+2, PW=128, sw=sh.offsetWidth||nw, p=S.pos;
-    const dx=(p==='br'||p==='tr')?sw-PW:p==='cc'?(sw-PW)/2:0, dy=(p==='bl'||p==='br')?nh-hh:p==='cc'?(nh-hh)/2:0, key=dx+'|'+dy+'|'+hh;
-    if(this._d!==key){this._d=key; const st=sh.style; st.setProperty('--dx',dx+'px'); st.setProperty('--dy',dy+'px'); st.setProperty('--hh',hh+'px'); st.setProperty('--pw',PW+'px');}
   }
   tot(){return this.o.reduce((a,o)=>a+o.v,0)}
   set(vals,users){
@@ -574,7 +572,7 @@ class Widget{
   }
   close(){
     const w=this.w; if(!w) return; clearTimeout(this.tc); clearTimeout(this.tl); clearTimeout(this.t1); clearTimeout(this.tf); this.intro=false; w.classList.add('anim');
-    if(S.an==='expand'){ w.classList.remove('open'); this.ts=setTimeout(()=>w.classList.remove('show'),900); this.tk=setTimeout(()=>{if(this.w===w) this.kill()},1500); }
+    if(S.an==='expand'){ w.classList.remove('open'); this.ts=setTimeout(()=>w.classList.remove('show'),250); this.tk=setTimeout(()=>{if(this.w===w) this.kill()},1000); }
     else{ w.classList.remove('show'); this.tk=setTimeout(()=>{if(this.w===w) this.kill()},1100); }
   }
   kill(){ clearTimeout(this.tcf);clearTimeout(this.tw);clearTimeout(this.tf);clearTimeout(this.t1);clearTimeout(this.tc);clearTimeout(this.tl);clearTimeout(this.ts);clearTimeout(this.tk);clearInterval(this.ti);cancelAnimationFrame(this.raf); if(this.w) this.w.remove(); this.w=null; }
